@@ -1,0 +1,43 @@
+name: Revision automatica de PR
+
+# Revisa cada Pull Request contra las reglas de CLAUDE.md y deja comentarios.
+# El comentario del agente NO cuenta como la aprobacion que exige la proteccion de
+# rama: un compañero tiene que leer el review y aprobar. Ver CONTRIBUTING.md.
+#
+# Requiere el secreto ANTHROPIC_API_KEY en Settings -> Secrets and variables -> Actions.
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.draft == false }}
+    # Si no hay API key configurada, el paso se salta en vez de fallar el PR.
+    env:
+      HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Revisar el PR
+        if: ${{ env.HAS_KEY == 'true' }}
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Revisá este Pull Request contra las reglas del archivo CLAUDE.md del repo.
+            Priorizá, en este orden:
+            1. Logica de negocio que quedo en el controller en vez de service/.
+            2. Consultas que no filtran por el usuario autenticado.
+            3. Logica nueva sin prueba unitaria.
+            4. Dependencias nuevas en pom.xml o package.json sin la etiqueta shared-change.
+            5. Funcionalidad fuera del alcance del MVP (ver exclusiones en CLAUDE.md).
+            6. Secretos o credenciales commiteados.
+            Se breve. Comenta solo lo que hay que cambiar, no lo que esta bien.
+            Escribi los comentarios en español.
