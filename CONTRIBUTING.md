@@ -67,6 +67,18 @@ paralelo sin verse.
   guardá lo que no esté commiteado con `git stash -u`.
 - No dejes cambios sin commitear pegados a la rama equivocada al cambiar de rama.
 
+## Revisión automática de PRs
+
+Cada PR dispara una revisión automática contra las reglas de `CLAUDE.md`, que deja
+comentarios inline con lo que haya que cambiar. Corre con la suscripción de Claude del
+Scrum Master, no con créditos de pago.
+
+**Ese comentario no es la aprobación.** La protección de rama sigue exigiendo que una
+persona apruebe el PR. El agente sirve para que quien revisa llegue con el trabajo medio
+hecho, no para saltarse la revisión humana.
+
+Si el secreto no está cargado, el paso se salta y el PR no se bloquea.
+
 ## Asistentes de IA
 
 Los tres trabajamos con IA. Las reglas de qué puede y qué no puede hacer están en

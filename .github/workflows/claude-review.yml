@@ -1,43 +1,48 @@
 name: Revision automatica de PR
 
-# Revisa cada Pull Request contra las reglas de CLAUDE.md y deja comentarios.
-# El comentario del agente NO cuenta como la aprobacion que exige la proteccion de
-# rama: un compañero tiene que leer el review y aprobar. Ver CONTRIBUTING.md.
+# Revisa cada Pull Request y deja comentarios inline con lo que haya que cambiar.
 #
-# Requiere el secreto ANTHROPIC_API_KEY en Settings -> Secrets and variables -> Actions.
+# Autenticacion: usa CLAUDE_CODE_OAUTH_TOKEN, que corre contra la suscripcion de
+# Claude y NO contra creditos de la API de pago. Para generarlo, en una terminal:
+#   claude setup-token
+# y cargar el resultado en Settings -> Secrets and variables -> Actions como
+# CLAUDE_CODE_OAUTH_TOKEN. Requiere ademas instalar la Claude GitHub App:
+#   https://github.com/apps/claude
+#
+# Si el secreto no esta cargado, el paso se salta y el PR no se bloquea.
+# El comentario del agente NO cuenta como la aprobacion que exige la proteccion
+# de rama: un compañero tiene que leer el review y aprobar. Ver CONTRIBUTING.md.
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   review:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.draft == false }}
-    # Si no hay API key configurada, el paso se salta en vez de fallar el PR.
     env:
-      HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+      HAS_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
     permissions:
       contents: read
-      pull-requests: write
-      issues: write
+      pull-requests: read
+      issues: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        if: ${{ env.HAS_TOKEN == 'true' }}
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+
       - name: Revisar el PR
-        if: ${{ env.HAS_KEY == 'true' }}
+        if: ${{ env.HAS_TOKEN == 'true' }}
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            Revisá este Pull Request contra las reglas del archivo CLAUDE.md del repo.
-            Priorizá, en este orden:
-            1. Logica de negocio que quedo en el controller en vez de service/.
-            2. Consultas que no filtran por el usuario autenticado.
-            3. Logica nueva sin prueba unitaria.
-            4. Dependencias nuevas en pom.xml o package.json sin la etiqueta shared-change.
-            5. Funcionalidad fuera del alcance del MVP (ver exclusiones en CLAUDE.md).
-            6. Secretos o credenciales commiteados.
-            Se breve. Comenta solo lo que hay que cambiar, no lo que esta bien.
-            Escribi los comentarios en español.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+          plugins: "code-review@claude-code-plugins"
+          prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment" --max-turns 15'
+
+      - name: Aviso si falta el secreto
+        if: ${{ env.HAS_TOKEN != 'true' }}
+        run: echo "::notice::Falta el secreto CLAUDE_CODE_OAUTH_TOKEN. Ver el encabezado de este workflow."
