@@ -38,10 +38,24 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
-          plugins: "code-review@claude-code-plugins"
-          prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
-          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment" --max-turns 15'
+          show_full_output: "true"
+          prompt: |
+            Revisa el diff de este Pull Request contra las reglas de CLAUDE.md,
+            que esta en la raiz del repositorio. Leelo primero.
+
+            Prioriza, en este orden:
+            1. Logica de negocio que quedo en el controller en vez de service/.
+            2. Consultas que no filtran por el usuario autenticado.
+            3. Logica nueva sin prueba unitaria.
+            4. Dependencias nuevas en pom.xml o package.json.
+            5. Funcionalidad fuera del alcance del MVP (ver exclusiones en CLAUDE.md).
+            6. Secretos o credenciales commiteados.
+
+            Publica cada hallazgo como comentario inline en la linea exacta, con la
+            herramienta mcp__github_inline_comment__create_inline_comment.
+            Escribi en español, se breve y comenta solo lo que hay que cambiar.
+            Si no encontras nada, no comentes.
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment,Read,Grep,Glob,Bash(git diff:*)" --max-turns 20 --debug'
 
       - name: Aviso si falta el secreto
         if: ${{ env.HAS_TOKEN != 'true' }}
