@@ -12,12 +12,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Hasta que la issue #1 cree el proyecto, el job pasa sin hacer nada.
+      # Cuando exista el pom.xml, el build y las pruebas se vuelven obligatorios.
+      - name: Detectar si el backend ya existe
+        id: check
+        run: |
+          if [ -f backend/pom.xml ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::backend/ todavia no tiene pom.xml (issue #1). Saltando."
+          fi
+
       - uses: actions/setup-java@v4
+        if: steps.check.outputs.existe == 'true'
         with:
           java-version: '21'
           distribution: temurin
           cache: maven
+
       - name: Compilar y correr pruebas
+        if: steps.check.outputs.existe == 'true'
         working-directory: backend
         run: ./mvnw --batch-mode verify
 
@@ -26,14 +42,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detectar si el frontend ya existe
+        id: check
+        run: |
+          if [ -f frontend/package.json ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::frontend/ todavia no tiene package.json (issue #1). Saltando."
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.check.outputs.existe == 'true'
         with:
           node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
       - name: Instalar dependencias
+        if: steps.check.outputs.existe == 'true'
         working-directory: frontend
         run: npm ci
+
       - name: Build de produccion
+        if: steps.check.outputs.existe == 'true'
         working-directory: frontend
         run: npm run build
