@@ -1,14 +1,13 @@
 # Revisor automático por ruta.
-# Reemplazar los marcadores por los usuarios de GitHub reales del equipo.
 
-/backend/    @USUARIO-DEVELOPER
-/frontend/   @USUARIO-PRODUCT-OWNER
+/backend/    @yariel3199-gif
+/frontend/   @NieblaVidente
 /e2e/        @PipeDevGit
 /infra/      @PipeDevGit
 /.github/    @PipeDevGit
 
 # Archivos compartidos: los toca cualquiera, pero los mira todo el equipo.
-/CLAUDE.md              @PipeDevGit @USUARIO-DEVELOPER @USUARIO-PRODUCT-OWNER
-/CONTRIBUTING.md        @PipeDevGit @USUARIO-DEVELOPER @USUARIO-PRODUCT-OWNER
-/backend/pom.xml        @PipeDevGit @USUARIO-DEVELOPER @USUARIO-PRODUCT-OWNER
-/frontend/package.json  @PipeDevGit @USUARIO-DEVELOPER @USUARIO-PRODUCT-OWNER
+/CLAUDE.md              @PipeDevGit @yariel3199-gif @NieblaVidente
+/CONTRIBUTING.md        @PipeDevGit @yariel3199-gif @NieblaVidente
+/backend/pom.xml        @PipeDevGit @yariel3199-gif @NieblaVidente
+/frontend/package.json  @PipeDevGit @yariel3199-gif @NieblaVidente

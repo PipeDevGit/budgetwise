@@ -11,8 +11,8 @@ obtener recomendaciones financieras básicas generadas por IA.
 | Rol Scrum | Persona | Usuario GitHub | Área técnica |
 |---|---|---|---|
 | Scrum Master | Felipe | @PipeDevGit | DevOps, CI, observabilidad y pruebas E2E |
-| Product Owner | _por completar_ | | Frontend React |
-| Developer | _por completar_ | | Backend Spring Boot, BD e IA |
+| Product Owner | | @NieblaVidente | Frontend React |
+| Developer | | @yariel3199-gif | Backend Spring Boot, BD e IA |
 
 Los tres integrantes programan. El rol es una responsabilidad adicional, no un puesto.
 
@@ -38,7 +38,8 @@ docker compose -f infra/docker-compose.yml up --build
 - Frontend: http://localhost:5173
 - API: http://localhost:8080 · salud: `/actuator/health` · métricas: `/actuator/prometheus`
 
-**Requisitos para desarrollar fuera de Docker:** JDK 21 y Node 20+.
+**Antes de empezar:** segui [SETUP.md](SETUP.md) para dejar tu maquina lista
+(JDK 21, Docker Desktop y Node 20+). Es obligatorio para los tres integrantes.
 
 ## Estructura
 
