@@ -34,8 +34,22 @@ winget install --id OpenJS.NodeJS.LTS --exact --silent --accept-package-agreemen
 
 Después **cerrá y volvé a abrir la terminal** (si no, no toma las variables de entorno).
 
-Docker Desktop pide **reiniciar la computadora** la primera vez, y al abrirlo puede pedir
-activar WSL 2: aceptá y dejá que instale lo que pida.
+### Paso obligatorio: WSL 2
+
+Docker Desktop en Windows **no arranca sin WSL 2**, y en la mayoría de las máquinas no
+viene instalado. Abrí PowerShell **como administrador** (clic derecho en el menú de
+inicio → Terminal (Administrador)) y corré:
+
+```powershell
+wsl --install
+```
+
+**Reiniciá la computadora.** Después abrí Docker Desktop desde el menú de inicio, aceptá
+los términos y esperá a que el ícono de la ballena deje de moverse.
+
+Si te salteás esto, `docker --version` va a responder pero cualquier comando real falla
+con *"Docker Desktop is unable to start"* o *"cannot find the file
+//./pipe/docker_engine"*.
 
 ## macOS
 
@@ -103,9 +117,6 @@ abrí la terminal después de cambiarla.
 
 **Docker dice "Cannot connect to the Docker daemon".** Docker Desktop no está corriendo.
 Abrilo desde el menú de inicio y esperá a que el ícono de la ballena deje de moverse.
-
-**Docker Desktop pide WSL 2 y falla (Windows).** Corré en PowerShell como
-administrador: `wsl --install` y reiniciá.
 
 **El puerto 5432 está ocupado.** Ya tenés un Postgres corriendo en la máquina. O lo
 parás, o cambiás el puerto en `infra/docker-compose.yml` (avisá en el chat si lo hacés,
