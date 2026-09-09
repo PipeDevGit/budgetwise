@@ -1,0 +1,31 @@
+# Configuracion y credenciales de la API.
+#
+# El ConfigMap guarda lo que no es secreto: se puede leer con
+# `kubectl get configmap` sin comprometer nada.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: budgetwise-config
+data:
+  # El host es "budgetwise-db", el nombre del Service de Postgres. Dentro del
+  # cluster el DNS lo resuelve solo: no hace falta saber la IP del pod.
+  SPRING_DATASOURCE_URL: jdbc:postgresql://budgetwise-db:5432/budgetwise
+  SPRING_DATASOURCE_USERNAME: budgetwise
+  BUDGETWISE_CORS_ALLOWED_ORIGIN: http://localhost:5173
+---
+# ATENCION: estos valores son de DESARROLLO LOCAL y no sirven para nada fuera
+# de una prueba en minikube o kind. Un Secret de Kubernetes solo esta
+# codificado en base64, no cifrado, asi que un secreto de verdad NO se
+# commitea nunca. En un cluster real se crea aparte y este archivo no existe:
+#
+#   kubectl create secret generic budgetwise-secrets \
+#     --from-literal=SPRING_DATASOURCE_PASSWORD='...' \
+#     --from-literal=JWT_SECRET='...'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: budgetwise-secrets
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_PASSWORD: budgetwise_dev
+  JWT_SECRET: clave-de-desarrollo-no-usar-fuera-de-local
