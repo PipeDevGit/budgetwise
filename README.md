@@ -66,11 +66,11 @@ docs/       arquitectura, bitácora de decisiones y evidencia de Scrum
 
 | Sprint | Fechas | Meta |
 |---|---|---|
-| Sprint 1 — Núcleo | 8–14 sep 2026 | Autenticación funcionando y todo levantando con Docker |
-| Sprint 2 — Producto | 15–21 sep 2026 | Las siete funcionalidades de la rúbrica de punta a punta |
-| Sprint 3 — Cierre | 22–28 sep 2026 | IA, observabilidad, Kubernetes, pruebas E2E y filminas |
+| Sprint 1 — Núcleo | 8–13 sep 2026 | Autenticación funcionando y todo levantando con Docker |
+| Sprint 2 — Producto | 14–19 sep 2026 | Las siete funcionalidades, infra y arranque de filminas |
+| Sprint 3 — Cierre | 20–22 sep 2026 | IA, prueba E2E, cierre de filminas y ensayo |
 
-Presentación: lunes 29 de septiembre de 2026.
+**Entrega: miércoles 23 de septiembre de 2026.**
 
 ## Cómo trabajamos
 

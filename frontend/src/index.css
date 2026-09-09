@@ -15,3 +15,66 @@ main {
   max-width: 40rem;
   width: 100%;
 }
+
+/* Formularios de login y registro (issue #5). Sin diseno elaborado a
+   proposito: lo que se evalua es que funcione y se entienda. */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 22rem;
+}
+
+form label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+form input {
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+
+form small {
+  opacity: 0.7;
+}
+
+form button[type='submit'] {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+form button[type='submit']:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* Boton que se comporta como enlace para cambiar de formulario. Es un
+   <button> y no un <a> porque no navega a ninguna URL. */
+.enlace {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error {
+    color: #ff8a80;
+  }
+}

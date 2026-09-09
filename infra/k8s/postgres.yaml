@@ -1,0 +1,71 @@
+# Base de datos. Es el equivalente del servicio "db" del docker-compose.
+#
+# Se usa StatefulSet y no Deployment porque Postgres tiene estado: necesita
+# que su disco lo siga entre reinicios. El volumeClaimTemplate le crea un
+# disco propio y se lo vuelve a montar al pod aunque se reinicie.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: budgetwise-db
+spec:
+  serviceName: budgetwise-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: budgetwise-db
+  template:
+    metadata:
+      labels:
+        app: budgetwise-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: budgetwise
+            - name: POSTGRES_USER
+              value: budgetwise
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: budgetwise-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
+            # Postgres exige que el directorio de datos este vacio al
+            # inicializar. El volumen montado trae un "lost+found", asi que
+            # los datos van en un subdirectorio.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "budgetwise", "-d", "budgetwise"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Service "headless" (clusterIP: None): no reparte carga entre replicas,
+# solo le da un nombre DNS estable al pod de la base. Es lo que corresponde
+# cuando hay una sola instancia con estado.
+apiVersion: v1
+kind: Service
+metadata:
+  name: budgetwise-db
+spec:
+  clusterIP: None
+  selector:
+    app: budgetwise-db
+  ports:
+    - port: 5432
+      targetPort: 5432

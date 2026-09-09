@@ -1,0 +1,17 @@
+# Configuracion no sensible de la API. Se puede leer con
+# `kubectl get configmap budgetwise-config -o yaml` sin comprometer nada.
+#
+# Las credenciales NO estan en este repositorio, a proposito: un Secret de
+# Kubernetes esta codificado en base64, no cifrado, asi que commitearlo seria
+# lo mismo que dejar la contrasena en texto plano. Se crea a mano antes de
+# aplicar los manifiestos (ver README.md).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: budgetwise-config
+data:
+  # El host es "budgetwise-db", el nombre del Service de Postgres. Dentro del
+  # cluster el DNS lo resuelve solo: no hace falta saber la IP del pod.
+  SPRING_DATASOURCE_URL: jdbc:postgresql://budgetwise-db:5432/budgetwise
+  SPRING_DATASOURCE_USERNAME: budgetwise
+  BUDGETWISE_CORS_ALLOWED_ORIGIN: http://localhost:5173

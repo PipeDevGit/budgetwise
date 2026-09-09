@@ -1,0 +1,65 @@
+# La API de Spring Boot.
+#
+# Es un Deployment y no un StatefulSet porque la API no guarda estado: todo
+# vive en Postgres. Eso permite levantar y bajar replicas sin coordinar nada,
+# que es justo el punto de "escalabilidad" que pide la rubrica.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: budgetwise-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: budgetwise-api
+  template:
+    metadata:
+      labels:
+        app: budgetwise-api
+    spec:
+      containers:
+        - name: api
+          # Imagen construida en local con:
+          #   docker build -t budgetwise-api:local backend/
+          # No hay registro publico, asi que se carga a mano en el cluster
+          # (ver README.md) y se le pide a Kubernetes que no intente bajarla.
+          image: budgetwise-api:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: budgetwise-config
+            - secretRef:
+                name: budgetwise-secrets
+          # Las dos sondas responden lo mismo pero significan cosas distintas:
+          #
+          # readiness: "¿puedo recibir trafico?". Mientras falle, el Service
+          #   deja de mandarle peticiones a este pod, pero no lo reinicia.
+          #   Es lo que evita el error 502 durante los ~30s de arranque de la JVM.
+          #
+          # liveness: "¿sigo vivo?". Si falla, Kubernetes reinicia el contenedor.
+          #   Empieza tarde a proposito: si arrancara antes que la JVM,
+          #   reiniciaria el pod en un bucle infinito sin dejarlo levantar.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          # requests = lo que el planificador reserva para decidir en que nodo
+          # cabe. limits = el techo; si la memoria lo pasa, el contenedor muere.
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 250m
+            limits:
+              memory: 1Gi
+              cpu: "1"
