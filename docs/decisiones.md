@@ -131,3 +131,42 @@ categorías, para que cada prueba controle su propio estado inicial.
 **Limitación declarada.** H2 no es Postgres: puede aceptar SQL que Postgres rechace. Por
 eso el esquema real se verifica levantando el `docker-compose` y mirando las tablas, no
 solo con las pruebas.
+
+## D-08 · JWT con `jjwt`, sin roles ni refresh token
+
+**Contexto.** La issue #4 pide registro e inicio de sesión. Hay que decidir cómo se
+identifica a un usuario en las siguientes peticiones sin volver a pedir la contraseña.
+
+**Alternativas consideradas.**
+- Sesión de servidor con cookie (`HttpSession`): pide un almacenamiento de sesión
+  compartido si algún día hay más de una instancia, y no encaja con un backend que se
+  consume desde un frontend separado en otro puerto.
+- `Spring Security` completo con `UserDetailsService`, `AuthenticationManager` y roles:
+  es la forma "de libro", pero hoy no existe ningún rol distinto de "usuario autenticado"
+  — sería una abstracción sin un problema real detrás (la regla de CLAUDE.md lo prohíbe
+  explícitamente).
+- JWT stateless, validado en un filtro propio.
+
+**Decisión.** JWT firmado con HMAC-SHA256 (`jjwt` 0.12.6), generado en el login/registro
+y validado en un `OncePerRequestFilter` propio (`JwtAuthenticationFilter`). No hay tabla
+de roles ni de permisos: el filtro solo verifica que el email del token exista como
+usuario y deja pasar la petición como autenticada.
+
+**Por qué.** Es lo mínimo que resuelve "identificar al usuario en cada request" sin
+sesión de servidor y sin construir infraestructura de roles que la rúbrica no pide y que
+hoy no tiene ningún caso de uso.
+
+**Detalles que hay que poder explicar.**
+- El secreto y las horas de expiración salen de `application.properties`
+  (`budgetwise.jwt.secret`, `budgetwise.jwt.expiration-hours`), nunca hardcodeados.
+- Expira a las 24 horas y no hay refresh token: si expira, se vuelve a loguear. Para un
+  MVP de tres semanas, un mecanismo de renovación es complejidad que la rúbrica no pide.
+- `AuthService.login` devuelve el mismo mensaje ("Email o contrasena incorrectos") tanto
+  si el email no existe como si la contraseña es incorrecta, para no revelar qué emails
+  están registrados.
+- Las contraseñas se guardan con `BCryptPasswordEncoder`, nunca en texto plano.
+
+**Costo de código nuevo.** Suma `spring-boot-starter-security` y las tres dependencias de
+`jjwt` (`jjwt-api`, `jjwt-impl`, `jjwt-jackson`) al `pom.xml` — por la regla de CLAUDE.md
+esto va con la etiqueta `shared-change` y necesita el visto bueno del equipo, igual que
+pasó con `spring-boot-starter-data-jpa` en el PR #31.
