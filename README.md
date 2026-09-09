@@ -18,7 +18,7 @@ Los tres integrantes programan. El rol es una responsabilidad adicional, no un p
 
 ## Stack
 
-React + Vite · Spring Boot 3 (Java 21) · PostgreSQL · Docker Compose · JUnit + Playwright
+React + Vite · Spring Boot 4.1.1 (Java 21) · PostgreSQL · Docker Compose · JUnit + Playwright
 
 ## Arquitectura
 
