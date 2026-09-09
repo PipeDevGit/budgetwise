@@ -2,11 +2,14 @@
 
 **Fecha:** 2026-09-09 · **Participantes:** Felipe (SM), Pablo (PO), Yariel (Dev)
 
-> **Nota de honestidad:** el Sprint 1 arrancó el 8 de septiembre sin una planificación
-> formal. El backlog y las asignaciones los preparó el Scrum Master por adelantado para
-> no perder tiempo, y el equipo los tomó como estaban. Esta planificación se hace a
-> mitad de sprint para confirmar el compromiso con los días que quedan. Se registra así,
-> con la irregularidad a la vista, en vez de simular una reunión que no ocurrió el día 1.
+> **Nota:** el backlog y las asignaciones los preparó el Scrum Master por adelantado
+> para no perder tiempo de arranque. Esta reunión, el 9 de septiembre, es donde el
+> equipo revisa ese trabajo, lo discute y se compromete. Se registra con su fecha real
+> en vez de simular una reunión el día 1.
+>
+> En esta misma reunión se corrigió el calendario: la fecha de entrega es el **23 de
+> septiembre**, no el 29 como estaba planificado. Los tres sprints se comprimieron y
+> tres issues del Sprint 3 se adelantaron al Sprint 2 (ver más abajo).
 
 ## Meta del sprint
 
@@ -24,8 +27,25 @@ Un usuario puede registrarse e iniciar sesión, y el proyecto entero levanta con
 | #5 | Pantallas de login y registro | 3 | Pablo | ⬜ pendiente |
 | #6 | CI y revisión automática de PRs | 3 | Felipe | 🔄 casi lista |
 
-**Total comprometido:** 19 puntos
+**Total comprometido:** 19 puntos · **Restante al 09-09:** 13 puntos en 5 días
 **Velocidad del sprint anterior:** sin dato, es el primero.
+
+## Corrección del calendario
+
+La entrega es el **miércoles 23 de septiembre**. El plan original daba por terminado el
+Sprint 3 el 28, cinco días *después* de entregar. Calendario corregido:
+
+| Sprint | Días |
+|---|---|
+| Sprint 1 | 8 al 13 sep |
+| Sprint 2 | 14 al 19 sep |
+| Sprint 3 | 20 al 22 sep |
+| Entrega | 23 sep |
+
+Con el Sprint 3 reducido a 3 días, se adelantaron al Sprint 2 las issues **#19**
+(observabilidad), **#20** (Kubernetes) y **#21** (filminas). Las dos primeras son del
+Scrum Master y no dependen de nadie; la tercera vale 11 puntos de rúbrica y no puede
+quedar para el último fin de semana.
 
 ## Lo que se dejó fuera y por qué
 
