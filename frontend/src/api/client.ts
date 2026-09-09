@@ -16,7 +16,7 @@ export type DatosRegistro = Credenciales & {
   name: string
 }
 
-/** Lo que devuelven /auth/register y /auth/login segun la issue #4. */
+/** Lo que devuelven /api/auth/register y /api/auth/login (issue #4). */
 export type RespuestaAuth = {
   token: string
 }
@@ -72,14 +72,14 @@ export function getHealth(): Promise<HealthResponse> {
 }
 
 export function registrar(datos: DatosRegistro): Promise<RespuestaAuth> {
-  return pedir<RespuestaAuth>('/auth/register', {
+  return pedir<RespuestaAuth>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify(datos),
   })
 }
 
 export function iniciarSesion(datos: Credenciales): Promise<RespuestaAuth> {
-  return pedir<RespuestaAuth>('/auth/login', {
+  return pedir<RespuestaAuth>('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(datos),
   })
