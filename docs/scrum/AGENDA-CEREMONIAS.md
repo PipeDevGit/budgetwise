@@ -14,7 +14,7 @@ facilita, el Product Owner prioriza, y el equipo entero estima y se compromete.
 
 - [ ] Tablero abierto y proyectado
 - [ ] Captura del tablero guardada en `docs/scrum/capturas/`
-- [ ] Todos leyeron `COMO-TRABAJAMOS.md`
+- [ ] Todos leyeron `CONTRIBUTING.md`
 
 ### 1. Meta del sprint — 5 min
 
@@ -192,6 +192,6 @@ Propuesta de orden inverso de prioridad (lo primero que se cae va arriba):
 
 - [ ] Actualizar `sprint-1-planning.md` con lo que se decidió de verdad
 - [ ] Confirmar que los tres tienen su entorno funcionando (`SETUP.md`)
-- [ ] Confirmar que los tres leyeron `COMO-TRABAJAMOS.md`
+- [ ] Confirmar que los tres leyeron `CONTRIBUTING.md`
 - [ ] Acordar la hora límite del daily (propuesta: 9:00 p.m.)
 - [ ] Primer daily de los tres, hoy mismo, en la issue #22
