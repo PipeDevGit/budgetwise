@@ -1,42 +1,61 @@
-import { useEffect, useState } from 'react'
-import { getHealth } from './api/client'
+import { useState } from 'react'
+import { LoginForm } from './auth/LoginForm'
+import { RegisterForm } from './auth/RegisterForm'
+import { borrarToken, guardarToken, leerToken } from './auth/session'
 
-type Estado =
-  | { tipo: 'cargando' }
-  | { tipo: 'conectado'; aplicacion: string }
-  | { tipo: 'error'; mensaje: string }
+type Vista = 'login' | 'registro'
 
 /**
- * Pantalla temporal del andamiaje (issue #1): comprueba que el frontend
- * alcanza al backend. La reemplazan el login (#5) y el dashboard (#11).
+ * Marcador de posicion. El panel de control de verdad es la issue #11; aca
+ * solo hace falta un destino al que llegar despues de iniciar sesion, que es
+ * lo que pide el criterio de la #5.
  */
-function App() {
-  const [estado, setEstado] = useState<Estado>({ tipo: 'cargando' })
+function Dashboard({ onCerrarSesion }: { onCerrarSesion: () => void }) {
+  return (
+    <section>
+      <h2>Panel de control</h2>
+      <p>Sesion iniciada. El panel real llega con la issue #11.</p>
+      <button type="button" onClick={onCerrarSesion}>
+        Cerrar sesion
+      </button>
+    </section>
+  )
+}
 
-  useEffect(() => {
-    getHealth()
-      .then((data) => setEstado({ tipo: 'conectado', aplicacion: data.application }))
-      .catch((error: Error) => setEstado({ tipo: 'error', mensaje: error.message }))
-  }, [])
+function App() {
+  // Leer el token al arrancar es lo que hace que la sesion sobreviva a
+  // recargar la pagina: si ya hay uno guardado, se entra directo al panel.
+  const [token, setToken] = useState<string | null>(() => leerToken())
+  const [vista, setVista] = useState<Vista>('login')
+
+  function abrirSesion(nuevoToken: string) {
+    guardarToken(nuevoToken)
+    setToken(nuevoToken)
+  }
+
+  function cerrarSesion() {
+    borrarToken()
+    setToken(null)
+    setVista('login')
+  }
+
+  let contenido
+  if (token) {
+    contenido = <Dashboard onCerrarSesion={cerrarSesion} />
+  } else if (vista === 'login') {
+    contenido = (
+      <LoginForm onSesionIniciada={abrirSesion} onIrARegistro={() => setVista('registro')} />
+    )
+  } else {
+    contenido = (
+      <RegisterForm onSesionIniciada={abrirSesion} onIrALogin={() => setVista('login')} />
+    )
+  }
 
   return (
     <main>
       <h1>BudgetWise</h1>
-      <p>MVP de gestion de presupuesto personal</p>
-
-      {estado.tipo === 'cargando' && <p>Conectando con la API…</p>}
-
-      {estado.tipo === 'conectado' && (
-        <p>Conectado a la API: <strong>{estado.aplicacion}</strong></p>
-      )}
-
-      {estado.tipo === 'error' && (
-        <p>
-          No se pudo conectar con la API: {estado.mensaje}
-          <br />
-          Verifica que el backend este corriendo en el puerto 8080.
-        </p>
-      )}
+      {contenido}
     </main>
   )
 }
