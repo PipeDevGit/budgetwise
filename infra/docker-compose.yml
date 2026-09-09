@@ -1,3 +1,8 @@
+# Levanta todo el proyecto con:
+#   docker compose -f infra/docker-compose.yml up --build
+#
+# Frontend: http://localhost:5173   ·   API: http://localhost:8080
+
 services:
   db:
     image: postgres:16-alpine
@@ -8,28 +13,49 @@ services:
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U budgetwise"]
+      test: ["CMD-SHELL", "pg_isready -U budgetwise -d budgetwise"]
       interval: 5s
+      timeout: 5s
       retries: 10
 
   api:
-    build: ../backend
+    build:
+      context: ../backend
     environment:
+      # La conexion a Postgres todavia no se usa: la activa la issue #3, que
+      # agrega Spring Data JPA. Se dejan definidas para no tocar el compose
+      # de nuevo, y porque el contenedor ya espera a que la base este sana.
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/budgetwise
       SPRING_DATASOURCE_USERNAME: budgetwise
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-budgetwise_dev}
-      JWT_SECRET: ${JWT_SECRET:-cambiar-en-produccion-clave-de-desarrollo-larga}
+      BUDGETWISE_CORS_ALLOWED_ORIGIN: http://localhost:5173
+      JWT_SECRET: ${JWT_SECRET:-clave-de-desarrollo-no-usar-fuera-de-local}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports: ["8080:8080"]
     depends_on:
       db: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   web:
-    build: ../frontend
+    build:
+      context: ../frontend
     environment:
+      # El navegador resuelve esta URL, no el contenedor: por eso localhost
+      # y no el nombre del servicio.
       VITE_API_URL: http://localhost:8080
     ports: ["5173:5173"]
-    depends_on: [api]
+    volumes:
+      # Recarga en caliente sin reconstruir la imagen. El volumen anonimo
+      # protege node_modules del contenedor de ser tapado por el del host.
+      - ../frontend/src:/app/src
+      - /app/node_modules
+    depends_on:
+      api: {condition: service_started}
 
 volumes:
   pgdata:
