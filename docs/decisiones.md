@@ -99,3 +99,35 @@ escribirlo a mano.
 
 **Lección de proceso.** El momento de cambiar la versión era ahora, con un solo endpoint
 escrito. Después de la #3 y la #4, con JPA y Security encima, habría costado mucho más.
+
+## D-06 · `ddl-auto=update` en vez de migraciones versionadas
+
+**Contexto.** La issue #3 pide que las tablas se creen al iniciar la app.
+
+**Alternativas consideradas.** Flyway o Liquibase con migraciones versionadas, o dejar
+que Hibernate genere el esquema con `spring.jpa.hibernate.ddl-auto`.
+
+**Decisión.** `ddl-auto=update`.
+
+**Por qué.** En un MVP de tres semanas el esquema va a cambiar varias veces por sprint, y
+mantener migraciones a mano cuesta más de lo que aporta cuando nadie tiene datos de
+producción que preservar. La rúbrica pide que el sistema funcione, no un pipeline de
+migraciones.
+
+**Lo que hay que saber si se pregunta en la exposición.** `update` no es lo que se usaría
+en producción: no borra columnas, no versiona los cambios y no permite revertir. Para un
+producto real esto sería Flyway. Es una decisión consciente de alcance, no un descuido.
+
+## D-07 · H2 en memoria para las pruebas
+
+**Contexto.** Las pruebas del repositorio necesitan una base de datos.
+
+**Decisión.** H2 en memoria bajo el perfil `test`, con `ddl-auto=create-drop`.
+
+**Por qué.** El CI no tiene un Postgres levantado, y hacer que las pruebas dependan de
+Docker las volvería lentas y frágiles. El perfil `test` además desactiva la precarga de
+categorías, para que cada prueba controle su propio estado inicial.
+
+**Limitación declarada.** H2 no es Postgres: puede aceptar SQL que Postgres rechace. Por
+eso el esquema real se verifica levantando el `docker-compose` y mirando las tablas, no
+solo con las pruebas.
