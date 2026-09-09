@@ -46,3 +46,23 @@ obligatorio** si la llamada externa falla o no hay API key.
 innecesario. El respaldo por reglas (categoría con mayor crecimiento mes a mes,
 proyección de la meta de ahorro al ritmo actual) ya satisface el criterio de la rúbrica
 por sí solo.
+
+## D-04 · Spring Boot 4.1.1 en vez de 3.x
+
+**Contexto.** Al generar el andamiaje (issue #1), Spring Initializr rechazó Spring Boot
+3.5.6 con *"compatibility range is >=4.0.0"*: ya no ofrece la línea 3.x.
+
+**Decisión.** Spring Boot 4.1.1 sobre Java 21.
+
+**Por qué.** No hubo alternativa real: generar con 3.x habría requerido armar el `pom.xml`
+a mano, sin el wrapper de Maven. La 4.x es la línea vigente y funciona con el JDK 21 que
+ya instalamos.
+
+**Detalle que costó tiempo, anotado para que no se repita.** Initializr genera el parent
+como `4.1.1.RELEASE`, y **esa versión no existe en Maven Central**: el artefacto real es
+`4.1.1`, sin sufijo. El build falla con *"Non-resolvable parent POM"* hasta que se corrige
+a mano en el `pom.xml`.
+
+**Consecuencia para el equipo.** Al buscar documentación, verificar que sea de Spring Boot
+4: bastante material de internet asume 3.x, y hay cambios entre líneas mayores. El starter
+web ahora se llama `spring-boot-starter-webmvc`.

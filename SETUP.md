@@ -11,7 +11,7 @@ Toma unos 20 minutos, la mayoría esperando descargas.
 
 | Herramienta | Versión | Para qué |
 |---|---|---|
-| **JDK 21** (Temurin) | 21 exacta | El backend usa Spring Boot 3, que **no funciona con Java 8 ni 11** |
+| **JDK 21** (Temurin) | 21 exacta | El backend usa Spring Boot 4, que **no funciona con Java 8 ni 11** |
 | **Docker Desktop** | la última | Levanta la base de datos y los tres servicios juntos |
 | **Node.js** | 20 o superior | El frontend con React + Vite |
 | **Git** | la última | Ya lo tenés si clonaste el repo |

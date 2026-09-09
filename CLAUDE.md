@@ -21,7 +21,7 @@ existan y funcionen el día de la demo.
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Spring Boot 3, Java 21 |
+| Backend | Spring Boot 4.1.1, Java 21 |
 | Frontend | React + Vite |
 | Base de datos | PostgreSQL (en Docker) |
 | Pruebas | JUnit (unitarias) + Playwright (1 flujo E2E) |
