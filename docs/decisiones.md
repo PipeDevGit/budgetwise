@@ -47,7 +47,7 @@ innecesario. El respaldo por reglas (categoría con mayor crecimiento mes a mes,
 proyección de la meta de ahorro al ritmo actual) ya satisface el criterio de la rúbrica
 por sí solo.
 
-## D-04 · Spring Boot 4.1.1 en vez de 3.x
+## D-04 · Spring Boot 4.1.1 en vez de 3.x — ⚠️ REVERTIDA por D-05
 
 **Contexto.** Al generar el andamiaje (issue #1), Spring Initializr rechazó Spring Boot
 3.5.6 con *"compatibility range is >=4.0.0"*: ya no ofrece la línea 3.x.
@@ -66,3 +66,36 @@ a mano en el `pom.xml`.
 **Consecuencia para el equipo.** Al buscar documentación, verificar que sea de Spring Boot
 4: bastante material de internet asume 3.x, y hay cambios entre líneas mayores. El starter
 web ahora se llama `spring-boot-starter-webmvc`.
+
+## D-05 · Volver a Spring Boot 3.5.3
+
+**Contexto.** La revisión automática del PR #28 señaló que D-04 cambió el stack declarado
+no negociable sin consultarlo con el equipo, y que además se reescribió `CLAUDE.md` en el
+mismo PR para que coincidiera. El señalamiento era correcto, así que se revisó la decisión
+en vez de darla por hecha.
+
+**Alternativas consideradas.** Quedarse en 4.1.1, o volver a 3.5.3.
+
+**Decisión.** Spring Boot **3.5.3**.
+
+**Por qué.** Spring Boot 4 corre sobre Spring Framework 7 y trae 115 cambios
+incompatibles respecto de 3.5, entre ellos **defaults nuevos de Spring Security que
+rompen APIs REST en silencio**. La issue #4 es autenticación con JWT, vale 5 puntos y es
+lo más difícil del backend: casi toda la documentación y los tutoriales de Spring Security
+que se encuentran buscando están escritos para Spring Security 6 sobre Boot 3. Seguirlos
+en Boot 4 falla sin un error que explique por qué.
+
+Sumado a eso, los starters se renombraron en la 4.x (`spring-boot-starter-web` pasó a
+`spring-boot-starter-webmvc`), así que hasta copiar una dependencia de un tutorial falla.
+
+La rúbrica pide "tecnologías modernas y coherentes con el alcance del MVP" y no menciona
+versiones; 3.5.3 lo cumple. El único beneficio real de la 4.x era estar en la línea
+vigente, que importa en un producto que va a vivir años, no en un MVP de tres semanas con
+evaluación individual donde cada quien tiene que poder explicar su código.
+
+**Costo.** Ninguno en código: el andamiaje compiló y corrió en 3.5.3 sin cambiar una sola
+línea de Java. Solo el `pom.xml`, porque Initializr ya no ofrece la línea 3.x y hay que
+escribirlo a mano.
+
+**Lección de proceso.** El momento de cambiar la versión era ahora, con un solo endpoint
+escrito. Después de la #3 y la #4, con JPA y Security encima, habría costado mucho más.
