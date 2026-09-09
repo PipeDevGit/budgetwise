@@ -131,3 +131,37 @@ categorías, para que cada prueba controle su propio estado inicial.
 **Limitación declarada.** H2 no es Postgres: puede aceptar SQL que Postgres rechace. Por
 eso el esquema real se verifica levantando el `docker-compose` y mirando las tablas, no
 solo con las pruebas.
+## D-08 · Kubernetes como exploración, no como forma de desplegar
+
+**Fecha:** 2026-09-09 · **Issue:** #20
+
+**Contexto.** La rúbrica pide, dentro de Contenerización y despliegue (6 pts), *"uso de
+Docker y la exploración de Kubernetes como herramienta de despliegue o escalabilidad"*.
+`CLAUDE.md` fija Docker + docker-compose como stack no negociable, así que agregar
+manifiestos de Kubernetes toca esa regla y necesita quedar escrito acá.
+
+**Qué se consideró.**
+
+1. **No incluir Kubernetes.** Deja puntos de la rúbrica sin cubrir, sin ganar nada.
+2. **Desplegar de verdad en un clúster** (kind, minikube o un servicio en la nube).
+   Es la opción más completa y la más cara: instalar herramientas, resolver imágenes sin
+   registro, y mantenerlo funcionando tres semanas.
+3. **Manifiestos versionados, sin clúster.** ← elegida
+
+**Decisión.** Se escriben los manifiestos en `infra/k8s/` y se documenta qué hace cada uno,
+pero **no se despliega**. El criterio de aceptación de la #20 dice explícitamente *"no hace
+falta desplegar en un clúster real"* y *"poder explicar qué hace cada manifiesto"*: lo que
+se evalúa es el entendimiento, no la infraestructura corriendo.
+
+**Esto no reemplaza a Docker.** `docker compose` sigue siendo la forma de levantar el
+proyecto para desarrollo y para la demostración. Kubernetes es material de la presentación,
+no parte del flujo de trabajo diario. Si aparece en las filminas, se presenta como
+exploración, no como despliegue — decirlo de otra manera sería mentir sobre lo que se hizo.
+
+**Costo asumido.** Los manifiestos nunca se aplicaron contra un servidor de Kubernetes, así
+que un campo mal escrito no se detectaría. Está declarado en el PR y en `infra/k8s/README.md`.
+
+**Sobre las credenciales.** Un `Secret` de Kubernetes está codificado en base64, **no
+cifrado**. Por eso no hay ningún `Secret` versionado: se crea a mano en el clúster. Esto
+respeta la regla de `CLAUDE.md` de no commitear secretos, que vale igual aunque los valores
+sean de desarrollo.
