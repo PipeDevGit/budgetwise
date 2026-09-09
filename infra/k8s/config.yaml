@@ -1,7 +1,10 @@
-# Configuracion y credenciales de la API.
+# Configuracion no sensible de la API. Se puede leer con
+# `kubectl get configmap budgetwise-config -o yaml` sin comprometer nada.
 #
-# El ConfigMap guarda lo que no es secreto: se puede leer con
-# `kubectl get configmap` sin comprometer nada.
+# Las credenciales NO estan en este repositorio, a proposito: un Secret de
+# Kubernetes esta codificado en base64, no cifrado, asi que commitearlo seria
+# lo mismo que dejar la contrasena en texto plano. Se crea a mano antes de
+# aplicar los manifiestos (ver README.md).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,20 +15,3 @@ data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://budgetwise-db:5432/budgetwise
   SPRING_DATASOURCE_USERNAME: budgetwise
   BUDGETWISE_CORS_ALLOWED_ORIGIN: http://localhost:5173
----
-# ATENCION: estos valores son de DESARROLLO LOCAL y no sirven para nada fuera
-# de una prueba en minikube o kind. Un Secret de Kubernetes solo esta
-# codificado en base64, no cifrado, asi que un secreto de verdad NO se
-# commitea nunca. En un cluster real se crea aparte y este archivo no existe:
-#
-#   kubectl create secret generic budgetwise-secrets \
-#     --from-literal=SPRING_DATASOURCE_PASSWORD='...' \
-#     --from-literal=JWT_SECRET='...'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: budgetwise-secrets
-type: Opaque
-stringData:
-  SPRING_DATASOURCE_PASSWORD: budgetwise_dev
-  JWT_SECRET: clave-de-desarrollo-no-usar-fuera-de-local

@@ -10,7 +10,7 @@ Para el día a día del proyecto seguimos usando `docker compose`.
 
 | Archivo | Qué declara | Equivalente en `docker-compose.yml` |
 |---|---|---|
-| `config.yaml` | `ConfigMap` con la configuración y `Secret` con las credenciales | el bloque `environment` de `api` |
+| `config.yaml` | `ConfigMap` con la configuración no sensible | el bloque `environment` de `api` |
 | `postgres.yaml` | `StatefulSet` de Postgres con disco propio + `Service` headless | el servicio `db` y el volumen `pgdata` |
 | `deployment.yaml` | La API: 2 réplicas, sondas de salud y límites de recursos | el servicio `api` y su `healthcheck` |
 | `service.yaml` | La dirección estable por donde entra el tráfico a la API | el `ports: ["8080:8080"]` de `api` |
@@ -38,7 +38,8 @@ trabajo que no suma puntos en la rúbrica.
 4. **`ConfigMap` vs `Secret`.** Separan lo que se puede leer libremente de lo que
    no. Con la salvedad importante de que **un `Secret` de Kubernetes está en
    base64, no cifrado** — protege de una mirada casual, no de un atacante. Por eso
-   los valores de este repo son de desarrollo y están marcados como tales.
+   en este repo hay `ConfigMap` pero **no hay ningún `Secret` versionado**: se crea
+   a mano en el clúster antes de aplicar los manifiestos.
 
 ## Probarlo, si alguien quiere
 
@@ -46,6 +47,10 @@ trabajo que no suma puntos en la rúbrica.
 kind create cluster --name budgetwise
 docker build -t budgetwise-api:local backend/
 kind load docker-image budgetwise-api:local --name budgetwise
+
+# Las credenciales no están en el repo: se crean acá, una sola vez.
+kubectl create secret generic budgetwise-secrets   --from-literal=SPRING_DATASOURCE_PASSWORD='budgetwise_dev'   --from-literal=JWT_SECRET='clave-de-desarrollo-no-usar-fuera-de-local'
+
 kubectl apply -f infra/k8s/
 kubectl get pods -w
 ```
