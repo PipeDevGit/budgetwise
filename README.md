@@ -35,8 +35,19 @@ servicio más adelante sin reescribir el dominio. Ver `docs/arquitectura.md`.
 docker compose -f infra/docker-compose.yml up --build
 ```
 
-- Frontend: http://localhost:5173
-- API: http://localhost:8080 · salud: `/actuator/health` · métricas: `/actuator/prometheus`
+Eso levanta los tres servicios sin ningún paso manual:
+
+| Servicio | URL | Qué es |
+|---|---|---|
+| `web` | http://localhost:5173 | Frontend React, con recarga en caliente |
+| `api` | http://localhost:8080 | API Spring Boot · salud en `/health` |
+| `db` | `localhost:5432` | PostgreSQL 16 |
+
+Para parar todo: `docker compose -f infra/docker-compose.yml down`
+(agregá `-v` si además querés borrar los datos de la base).
+
+Las contraseñas y claves salen de variables de entorno con valores por defecto
+de desarrollo. Para cambiarlas, copiá `.env.example` a `.env` en la raíz.
 
 **Antes de empezar:** segui [SETUP.md](SETUP.md) para dejar tu maquina lista
 (JDK 21, Docker Desktop y Node 20+). Es obligatorio para los tres integrantes.
