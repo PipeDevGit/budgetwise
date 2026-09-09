@@ -30,8 +30,12 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/health")
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/health", "/error")
                         .permitAll()
+                        // "/error" tiene que ser publica: si el JSON de un request viene mal
+                        // formado, Spring reenvia internamente a /error para armar el 400. Si
+                        // esa ruta pidiera autenticacion, ese reenvio se bloqueaba y el 400 real
+                        // se disfrazaba de un 403 vacio y sin explicacion.
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(
