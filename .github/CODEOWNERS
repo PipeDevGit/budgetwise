@@ -1,10 +1,15 @@
 # Revisor automático por ruta.
+#
+# GitHub pide aprobación de un dueño de la ruta que toca el PR, y el autor no
+# cuenta como su propio revisor. Por eso cada ruta lista dos personas: con un
+# solo dueño, esa persona no podría mergear nunca su propio trabajo.
+# El primer nombre de cada línea es el dueño principal.
 
-/backend/    @yariel3199-gif
-/frontend/   @NieblaVidente
-/e2e/        @PipeDevGit
-/infra/      @PipeDevGit
-/.github/    @PipeDevGit
+/backend/    @yariel3199-gif @PipeDevGit
+/frontend/   @NieblaVidente @PipeDevGit
+/e2e/        @PipeDevGit @yariel3199-gif
+/infra/      @PipeDevGit @yariel3199-gif
+/.github/    @PipeDevGit @NieblaVidente
 
 # Archivos compartidos: los toca cualquiera, pero los mira todo el equipo.
 /CLAUDE.md              @PipeDevGit @yariel3199-gif @NieblaVidente
