@@ -30,7 +30,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/health", "/error")
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/health", "/error", "/actuator/health", "/actuator/prometheus")
                         .permitAll()
                         // "/error" tiene que ser publica: si el JSON de un request viene mal
                         // formado, Spring reenvia internamente a /error para armar el 400. Si

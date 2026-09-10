@@ -204,3 +204,50 @@ hoy no tiene ningún caso de uso.
 `jjwt` (`jjwt-api`, `jjwt-impl`, `jjwt-jackson`) al `pom.xml` — por la regla de CLAUDE.md
 esto va con la etiqueta `shared-change` y necesita el visto bueno del equipo, igual que
 pasó con `spring-boot-starter-data-jpa` en el PR #31.
+
+## D-10 · Observabilidad con lo que ya trae Spring Boot
+
+**Fecha:** 2026-09-10 · **Issue:** #19
+
+**Contexto.** La rúbrica da 6 puntos a observabilidad: monitoreo, trazabilidad y
+detección de fallos, con Datadog como referencia. La issue #19 pide métricas en
+`/actuator/prometheus`, logs JSON con `request_id`, ruta, estado y duración, y una
+traza de los errores 500.
+
+**Qué se consideró.**
+
+1. **Datadog o una plataforma similar.** Es la referencia del profesor, pero exige
+   cuenta, agente y claves: infraestructura y un secreto más para tres semanas.
+2. **Stack completo Prometheus + Grafana + Loki en el compose.** Muy vistoso, pero
+   son tres contenedores más que nadie del equipo va a mantener.
+3. **Lo que Spring Boot ya trae, más una dependencia.** ← elegida
+
+**Decisión.**
+
+- **Métricas:** Actuator + `micrometer-registry-prometheus`, única dependencia nueva.
+  `/actuator/prometheus` expone peticiones HTTP, JVM y pool de conexiones en el formato
+  que lee Prometheus, Grafana o el propio agente de Datadog.
+- **Logs JSON:** `logging.structured.format.console=logstash`, **nativo de Spring
+  Boot 3.4+**. No hace falta `logstash-logback-encoder` ni ninguna otra librería.
+- **Trazabilidad:** `RequestLoggingFilter` en `shared/config/` genera un `request_id`
+  por petición, lo pone en el MDC (así sale en todo log de esa petición, en cualquier
+  capa) y lo devuelve en el header `X-Request-Id`.
+- **Detección de fallos:** el mismo filtro loguea como `ERROR` con la traza completa
+  toda petición que termina en 5xx.
+
+**Por qué el filtro corre antes que Spring Security.** Con `HIGHEST_PRECEDENCE` también
+quedan registrados los 401 y 403. Es justo lo que habría hecho falta para ver la #41
+desde los logs, en vez de descubrirla probando en el navegador.
+
+**Por qué `/health` y `/actuator/*` no se loguean.** Docker, Kubernetes y Prometheus los
+consultan cada pocos segundos: si se loguearan, taparían las peticiones reales.
+
+**Costo asumido.**
+
+- `/actuator/prometheus` es público, sin token. Las métricas no exponen datos de
+  usuarios, y en un clúster real se restringiría por red, no por JWT.
+- No hay tracing distribuido (OpenTelemetry, spans): con un monolito, un `request_id`
+  por petición cubre la trazabilidad. Si en la exposición se pregunta, esa es la
+  respuesta, no un descuido.
+- Los logs locales con `mvnw spring-boot:run` también salen en JSON, que es menos
+  cómodo de leer a ojo. Se aceptó para no tener dos configuraciones distintas.
