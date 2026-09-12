@@ -78,3 +78,80 @@ form button[type='submit']:disabled {
     color: #ff8a80;
   }
 }
+
+/* Pantalla de transacciones (issue #10). */
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.etiqueta {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.saldo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+form select {
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+
+form h3 {
+  margin: 0 0 0.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+th,
+td {
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+  text-align: left;
+}
+
+th {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.derecha {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ingreso {
+  color: #1b7f3b;
+}
+
+.gasto {
+  color: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ingreso {
+    color: #6ddc93;
+  }
+
+  .gasto {
+    color: #ff8a80;
+  }
+}
