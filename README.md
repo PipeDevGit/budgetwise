@@ -50,7 +50,7 @@ Las contraseñas y claves salen de variables de entorno con valores por defecto
 de desarrollo. Para cambiarlas, copiá `.env.example` a `.env` en la raíz.
 
 **Antes de empezar:** segui [SETUP.md](SETUP.md) para dejar tu maquina lista
-(JDK 21, Docker Desktop y Node 20+). Es obligatorio para los tres integrantes.
+(JDK 21, Docker Desktop y Node 22+). Es obligatorio para los tres integrantes.
 
 ## Estructura
 

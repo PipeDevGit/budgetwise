@@ -1,6 +1,6 @@
 # Imagen de desarrollo: sirve con el dev server de Vite para tener recarga en
 # caliente. El build de produccion vive en el CI; aca importa iterar rapido.
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./

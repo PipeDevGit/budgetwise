@@ -13,7 +13,7 @@ Toma unos 20 minutos, la mayoría esperando descargas.
 |---|---|---|
 | **JDK 21** (Temurin) | 21 exacta | El backend usa Spring Boot 3.5, que **no funciona con Java 8 ni 11** |
 | **Docker Desktop** | la última | Levanta la base de datos y los tres servicios juntos |
-| **Node.js** | 20 o superior | El frontend con React + Vite |
+| **Node.js** | 22 o superior | El frontend con React + Vite |
 | **Git** | la última | Ya lo tenés si clonaste el repo |
 
 > Ojo con el JDK: si tenés Java 8 instalado de antes (es lo más común en Windows), no
@@ -56,7 +56,7 @@ con *"Docker Desktop is unable to start"* o *"cannot find the file
 ```bash
 brew install --cask temurin@21
 brew install --cask docker
-brew install node@20
+brew install node@22
 ```
 
 Abrí Docker Desktop desde Aplicaciones una vez, para que termine de configurarse.
@@ -87,7 +87,7 @@ Tiene que decir:
 - `java version "21..."` — **si dice 1.8 o 11, seguí leyendo abajo**
 - `Docker version 2x...`
 - `Docker Compose version v2...`
-- `v20...` o superior
+- `v22...` o superior
 
 ## La prueba de fuego
 
