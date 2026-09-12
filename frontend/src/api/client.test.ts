@@ -115,4 +115,12 @@ describe('pedir()', () => {
       iniciarSesion({ email: 'ana@invenio.ac.cr', password: 'clave-mala' }),
     ).rejects.toThrow('La API respondio 401')
   })
+
+  // El DELETE de /api/transactions (issue #7) responde 204 sin cuerpo:
+  // pedir() no puede llamar a json() ahi porque no hay nada que parsear.
+  it('no intenta leer el cuerpo cuando la respuesta es 204', async () => {
+    simularFetch(respuesta(204))
+
+    await expect(getHealth()).resolves.toBeUndefined()
+  })
 })

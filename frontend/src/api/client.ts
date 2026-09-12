@@ -51,6 +51,12 @@ async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
     throw new Error(await mensajeDeError(respuesta))
   }
 
+  // Un 204 no trae cuerpo: es lo que responde el DELETE de /api/transactions
+  // (issue #7). Llamar a json() aca fallaria, porque no hay nada que parsear.
+  if (respuesta.status === 204) {
+    return undefined as T
+  }
+
   return respuesta.json() as Promise<T>
 }
 
