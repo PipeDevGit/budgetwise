@@ -164,7 +164,7 @@ cuando la división no es exacta: acordate al calcular el saldo y el progreso de
 
 ## Antes de escribir la primera línea
 
-1. Seguí [`SETUP.md`](SETUP.md): **JDK 21, Docker Desktop y Node 20+**. En Windows además
+1. Seguí [`SETUP.md`](SETUP.md): **JDK 21, Docker Desktop y Node 22+**. En Windows además
    `wsl --install` como administrador, y reiniciar.
 2. Leé [`CLAUDE.md`](CLAUDE.md).
 3. Levantá el proyecto: `docker compose -f infra/docker-compose.yml up --build`
