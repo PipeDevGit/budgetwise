@@ -205,7 +205,49 @@ hoy no tiene ningún caso de uso.
 esto va con la etiqueta `shared-change` y necesita el visto bueno del equipo, igual que
 pasó con `spring-boot-starter-data-jpa` en el PR #31.
 
-## D-10 · Observabilidad con lo que ya trae Spring Boot
+## D-10 · Vitest como runner de pruebas del frontend
+
+**Fecha:** 2026-09-11 · **Discusión:** issue #22
+
+**Contexto.** La Definition of Done de `CONTRIBUTING.md` pide al menos una prueba unitaria
+por historia, pero el frontend no tenía con qué correr pruebas: el job de CI solo hacía
+`npm run build`. El PR #33 (issue #5) se mergeó con esa casilla sin marcar, y del Sprint 2
+en adelante casi todo el frontend (#8, #10, #11, #12, #13 y #17) iba a chocar con lo mismo.
+
+**Qué se consideró.**
+
+1. **No agregar runner y cubrir el frontend con la prueba E2E de Playwright (#18).**
+   Defendible, porque los 8 puntos de pruebas ya tienen JUnit y Playwright, pero obligaba a
+   cambiar la Definition of Done, y un flujo E2E no aísla la lógica de `session.ts` o de
+   `pedir()`.
+2. **Jest.** Es el más conocido, pero con TypeScript y módulos ES necesita una
+   configuración de transformación aparte (Babel o `ts-jest`) que duplica lo que Vite ya
+   resuelve.
+3. **Vitest.** ← elegida
+
+**Decisión.** Vitest como `devDependency`, sin archivo de configuración propio: reutiliza
+`vite.config.ts`. Las pruebas viven junto al código (`*.test.ts`) y corren con `npm test`,
+que el job `Frontend (React + Vite)` del CI ejecuta antes del build.
+
+**Por qué.** Es el runner del propio Vite: mismo manejo de TypeScript y de módulos que la
+aplicación, sin configuración extra. Se propuso en la issue #22 el 9 de septiembre,
+@PipeDevGit lo aprobó el 10 y @yariel3199-gif no planteó objeciones.
+
+**Por qué la versión 4 y no la 5.** Vitest 5 exige Node 22.12 o superior, y tanto el CI
+(`node-version: '20'`) como `frontend/Dockerfile` (`node:20-alpine`) usan Node 20. Vitest
+4.1.11 soporta Node 20 y Vite 8. La dependencia queda fijada en `^4.1.11` para que npm no
+salte sola a la 5.
+
+**Pendiente, fuera de esta decisión.** Node 20 dejó de tener soporte el 30 de abril de
+2026. Pasar el CI y el `Dockerfile` a Node 22, con soporte hasta abril de 2027, habilitaría
+Vitest 5, pero toca `SETUP.md`, el CI y la imagen del frontend: es una decisión del equipo
+aparte, no parte de esta.
+
+**Detalle que hay que poder explicar.** Vitest corre en Node, donde no existen
+`localStorage` ni un backend. Las pruebas reemplazan ambos con `vi.stubGlobal`: un
+`localStorage` en memoria y un `fetch` falso que no sale a la red. No se agregó `jsdom` ni
+`happy-dom`: con lo que se prueba hoy no hacen falta, y serían una dependencia más.
+## D-11 · Observabilidad con lo que ya trae Spring Boot
 
 **Fecha:** 2026-09-10 · **Issue:** #19
 

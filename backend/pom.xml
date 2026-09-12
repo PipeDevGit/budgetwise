@@ -38,7 +38,7 @@
 		<!--
 			Expone /actuator/prometheus (issue #19). La version la fija el parent de
 			Spring Boot. Es la unica dependencia de observabilidad: los logs JSON
-			vienen incluidos en Spring Boot 3.4+ (ver D-10).
+			vienen incluidos en Spring Boot 3.4+ (ver D-11).
 		-->
 		<dependency>
 			<groupId>io.micrometer</groupId>

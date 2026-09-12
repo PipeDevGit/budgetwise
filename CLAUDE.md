@@ -24,7 +24,7 @@ existan y funcionen el día de la demo.
 | Backend | Spring Boot 3.5.3, Java 21 |
 | Frontend | React + Vite |
 | Base de datos | PostgreSQL (en Docker) |
-| Pruebas | JUnit (unitarias) + Playwright (1 flujo E2E) |
+| Pruebas | JUnit (unitarias, backend) + Vitest (unitarias, frontend) + Playwright (1 flujo E2E) |
 | Contenedores | Docker + docker-compose |
 | Arquitectura | Monolito modular en capas |
 

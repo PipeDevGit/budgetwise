@@ -65,6 +65,11 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Pruebas unitarias
+        if: steps.check.outputs.existe == 'true'
+        working-directory: frontend
+        run: npm test
+
       - name: Build de produccion
         if: steps.check.outputs.existe == 'true'
         working-directory: frontend
