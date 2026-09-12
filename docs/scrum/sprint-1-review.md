@@ -47,22 +47,32 @@ código ni mirando pruebas en verde.
 
 ## Aceptado por el Product Owner
 
-**Pendiente — lo completa @NieblaVidente.**
-
 | Issue | ¿Aceptada? | Comentario |
 |---|---|---|
-| #1 | | |
-| #2 | | |
-| #3 | | |
-| #4 | | |
-| #5 | | |
-| #6 | | |
-| #41 | | |
+| #1 | Sí | Estructura en capas completa y CI en verde. Observación sobre el camino, no sobre el resultado: entró con Spring Boot 4, que contradecía `CLAUDE.md`, y hubo que revertirlo (D-04 y D-05). |
+| #2 | Sí | Levanté los tres servicios en mi máquina con un solo comando: `db` y `api` en *healthy* y el frontend sirviendo en 5173. |
+| #3 | Sí | Tablas creadas y categorías precargadas sin duplicar. Observación: el PR #31 lo abrió @PipeDevGit y no el dueño de la issue. Con evaluación individual, conviene que quien la explique el 23 sea quien la escribió. |
+| #4 | Sí | Registro, login con JWT y la ruta protegida `/me`, verificados desde el navegador contra la API real. Dos precisiones en el apartado siguiente. |
+| #5 | Sí | Formularios, validación, mensajes de error y navegación, funcionando contra la API real desde el PR #40. Es mi propia historia: la evidencia que respalda la aceptación está en ese PR y la puede reproducir cualquiera. |
+| #6 | Sí | CI corriendo en cada PR, `main` protegida con revisión de code owners y revisor automático funcionando. Observación: al cerrarse, el job de frontend todavía no corría pruebas — el riesgo R4 del planning — y eso entró después, con el PR #44. |
+| #41 | Sí | Verifiqué el arreglo en el navegador: el preflight a una ruta protegida pasó de 403 a 200, `/api/auth/me` con token devuelve el usuario, y sin token sigue rechazando. |
 
 ## Rechazado o incompleto
 
-**Pendiente.** Si el PO considera que algo quedó a medias, va acá con la issue que lo
-arregla, no como comentario suelto.
+Ninguna historia se rechaza: las siete se aceptan. Quedan dos cosas incompletas dentro de
+historias ya aceptadas.
+
+- **El criterio de probar el login de punta a punta no vive en ninguna issue.** La
+  Decisión 2 del planning lo movió de la #5 a la #4, y en el acta pedí que quedara escrito
+  como criterio de aceptación de la #4. No se hizo: la #4 se cerró con sus cuatro
+  criterios originales y sin comentarios. Hoy ninguna prueba automática verifica el login
+  completo; lo único que lo respalda es la verificación manual del PR #40. **Lo cubre la
+  issue #18**, y por eso sostengo lo que dejé anotado en el acta: si la #18 se cae, ese
+  criterio no lo cubre nadie.
+- **La #4 se implementó en `/api/auth/*` y sus criterios dicen `/auth/*`.** Se acepta
+  igual, porque el prefijo es razonable y está bien resuelto, pero esa diferencia entre lo
+  escrito y lo construido fue exactamente la causa del bug que corrigió el PR #40. Queda
+  como recordatorio: cuando el contrato cambia, se actualiza la issue, no solo el código.
 
 ## Deuda que se lleva el Sprint 2
 
