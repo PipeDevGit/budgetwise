@@ -68,6 +68,6 @@ arregla, no como comentario suelto.
 
 - **Cuerpos de error vacíos.** Un login con clave incorrecta devuelve 401 sin JSON, así
   que el frontend muestra *"La API respondió 401"* en vez de un mensaje útil. Detectado
-  por Pablo en el PR #40. **No tiene issue todavía.**
+  por Pablo en el PR #40. Abierta como issue **#46**.
 - **Sin prueba E2E** (#18) ni pruebas unitarias de la lógica financiera (#14): la lógica
   que van a cubrir todavía no existe.
