@@ -54,12 +54,22 @@ public class Transaction {
     }
 
     public Transaction(BigDecimal amount, TransactionType type, LocalDate date,
-                       String description, User user, Category category) {
+            String description, User user, Category category) {
         this.amount = amount;
         this.type = type;
         this.date = date;
         this.description = description;
         this.user = user;
+        this.category = category;
+    }
+
+    /** Editar un movimiento (issue #7): el dueno (user) no cambia, todo lo demas si. */
+    public void actualizar(BigDecimal amount, TransactionType type, LocalDate date,
+            String description, Category category) {
+        this.amount = amount;
+        this.type = type;
+        this.date = date;
+        this.description = description;
         this.category = category;
     }
 
