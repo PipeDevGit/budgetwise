@@ -5,9 +5,12 @@ import com.invenio.budgetwise.auth.repository.UserRepository;
 import com.invenio.budgetwise.category.domain.Category;
 import com.invenio.budgetwise.category.repository.CategoryRepository;
 import com.invenio.budgetwise.transaction.domain.Transaction;
+import com.invenio.budgetwise.transaction.domain.TransactionType;
+import com.invenio.budgetwise.transaction.dto.BalanceResponse;
 import com.invenio.budgetwise.transaction.dto.TransactionRequest;
 import com.invenio.budgetwise.transaction.dto.TransactionResponse;
 import com.invenio.budgetwise.transaction.repository.TransactionRepository;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,10 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * CRUD de movimientos (issue #7). Todo pasa por el email del usuario
- * autenticado (lo deja JwtAuthenticationFilter en el Authentication): ninguna
- * consulta ni escritura ocurre sin saber de quien es, tal como pide la
- * issue #7 y revisa CLAUDE.md en cada PR.
+ * CRUD de movimientos (issue #7) y calculo del saldo (issue #15). Todo pasa
+ * por el email del usuario autenticado (lo deja JwtAuthenticationFilter en
+ * el Authentication): ninguna consulta ni escritura ocurre sin saber de
+ * quien es, tal como pide la issue #7 y revisa CLAUDE.md en cada PR.
  *
  * Los metodos de lectura son @Transactional(readOnly = true) porque
  * Transaction.category es LAZY: sin una transaccion abierta durante el
@@ -47,7 +50,7 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public List<TransactionResponse> listar(String email) {
         Long userId = usuarioAutenticado(email).getId();
-        return transactionRepository.findByUserIdOrderByDateDesc(userId).stream()
+        return transactionRepository.findByUserIdOrderByDateDescIdDesc(userId).stream()
                 .map(this::aRespuesta)
                 .toList();
     }
@@ -80,6 +83,32 @@ public class TransactionService {
     public void eliminar(String email, Long id) {
         Long userId = usuarioAutenticado(email).getId();
         transactionRepository.delete(buscarPropia(id, userId));
+    }
+
+    /**
+     * Saldo automatico (issue #15). Reusa la misma lista que ya trae listar():
+     * no hay tantas transacciones en el MVP como para justificar una consulta
+     * de agregacion aparte, y evita otro metodo de repositorio que haya que
+     * mantener en aislamiento por usuario. category es LAZY pero aca no se
+     * toca: amount y type son columnas propias de Transaction, no relaciones,
+     * asi que no hace falta la sesion abierta para leerlas. Se deja
+     * @Transactional(readOnly = true) de todas formas, por la misma razon que
+     * listar() y obtener(): consistencia si el dia de manana esto cambia.
+     */
+    @Transactional(readOnly = true)
+    public BalanceResponse calcularSaldo(String email) {
+        Long userId = usuarioAutenticado(email).getId();
+        List<Transaction> transacciones = transactionRepository.findByUserIdOrderByDateDescIdDesc(userId);
+        BigDecimal ingresos = sumarPorTipo(transacciones, TransactionType.INGRESO);
+        BigDecimal gastos = sumarPorTipo(transacciones, TransactionType.GASTO);
+        return new BalanceResponse(ingresos, gastos, ingresos.subtract(gastos));
+    }
+
+    private BigDecimal sumarPorTipo(List<Transaction> transacciones, TransactionType tipo) {
+        return transacciones.stream()
+                .filter(t -> t.getType() == tipo)
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private User usuarioAutenticado(String email) {

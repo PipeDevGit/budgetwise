@@ -14,6 +14,7 @@ import com.invenio.budgetwise.category.domain.Category;
 import com.invenio.budgetwise.category.repository.CategoryRepository;
 import com.invenio.budgetwise.transaction.domain.Transaction;
 import com.invenio.budgetwise.transaction.domain.TransactionType;
+import com.invenio.budgetwise.transaction.dto.BalanceResponse;
 import com.invenio.budgetwise.transaction.dto.TransactionRequest;
 import com.invenio.budgetwise.transaction.dto.TransactionResponse;
 import com.invenio.budgetwise.transaction.repository.TransactionRepository;
@@ -107,7 +108,7 @@ class TransactionServiceTest {
     void listarDevuelveSoloLasDelUsuarioAutenticado() {
         Transaction transaction = new Transaction(
                 new BigDecimal("200.00"), TransactionType.INGRESO, LocalDate.now(), "Freelance", ana, comida);
-        when(transactionRepository.findByUserIdOrderByDateDesc(1L)).thenReturn(List.of(transaction));
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of(transaction));
 
         List<TransactionResponse> respuesta = transactionService.listar("ana@example.com");
 
@@ -163,5 +164,31 @@ class TransactionServiceTest {
         transactionService.eliminar("ana@example.com", 5L);
 
         verify(transactionRepository).delete(existente);
+    }
+
+    @Test
+    void calcularSaldoSumaIngresosYGastosPorSeparadoYRestaParaElSaldo() {
+        Transaction ingreso = new Transaction(
+                new BigDecimal("450000.00"), TransactionType.INGRESO, LocalDate.of(2026, 9, 1), "Salario", ana, comida);
+        Transaction gasto = new Transaction(
+                new BigDecimal("12500.50"), TransactionType.GASTO, LocalDate.of(2026, 9, 2), "Almuerzo", ana, comida);
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of(gasto, ingreso));
+
+        BalanceResponse saldo = transactionService.calcularSaldo("ana@example.com");
+
+        assertThat(saldo.totalIncome()).isEqualByComparingTo("450000.00");
+        assertThat(saldo.totalExpense()).isEqualByComparingTo("12500.50");
+        assertThat(saldo.balance()).isEqualByComparingTo("437499.50");
+    }
+
+    @Test
+    void calcularSaldoSinTransaccionesDevuelveCeroEnLosTres() {
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of());
+
+        BalanceResponse saldo = transactionService.calcularSaldo("ana@example.com");
+
+        assertThat(saldo.totalIncome()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saldo.totalExpense()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saldo.balance()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 }
