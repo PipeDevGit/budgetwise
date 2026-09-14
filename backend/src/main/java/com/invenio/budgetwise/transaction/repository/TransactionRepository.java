@@ -16,5 +16,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
+    /** Filtro por categoria de la issue #8. Sigue filtrando por usuario. */
+    List<Transaction> findByUserIdAndCategoryIdOrderByDateDesc(Long userId, Long categoryId);
+
     List<Transaction> findByUserIdAndDateBetween(Long userId, LocalDate desde, LocalDate hasta);
 }
