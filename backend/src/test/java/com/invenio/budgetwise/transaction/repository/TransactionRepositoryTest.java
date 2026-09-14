@@ -53,14 +53,14 @@ class TransactionRepositoryTest {
 
     @Test
     void cadaUsuarioVeSoloSusPropiosMovimientos() {
-        assertThat(transactionRepository.findByUserIdOrderByDateDesc(ana.getId()))
+        assertThat(transactionRepository.findByUserIdOrderByDateDescIdDesc(ana.getId()))
                 .extracting(Transaction::getDescription)
                 .containsExactly("Almuerzo de Ana");
     }
 
     @Test
     void noDevuelveUnMovimientoAjenoAunqueSeSepaElId() {
-        Long idDeBeto = transactionRepository.findByUserIdOrderByDateDesc(beto.getId())
+        Long idDeBeto = transactionRepository.findByUserIdOrderByDateDescIdDesc(beto.getId())
                 .getFirst().getId();
 
         assertThat(transactionRepository.findByIdAndUserId(idDeBeto, ana.getId())).isEmpty();
@@ -68,7 +68,23 @@ class TransactionRepositoryTest {
 
     @Test
     void guardaLosMontosSinPerderPrecision() {
-        assertThat(transactionRepository.findByUserIdOrderByDateDesc(ana.getId()).getFirst().getAmount())
+        assertThat(transactionRepository.findByUserIdOrderByDateDescIdDesc(ana.getId()).getFirst().getAmount())
                 .isEqualByComparingTo(new BigDecimal("15000.00"));
+    }
+
+    @Test
+    void ordenaMovimientosDelMismoDiaPorIdDescendente() {
+        // Misma fecha para los dos: sin el desempate por id, el orden entre
+        // ellos no seria determinista (issue #7, observacion de Pablo en la
+        // review del PR #53).
+        Category otros = categoryRepository.save(Category.predefinida("Otros"));
+        Transaction primero = transactionRepository.save(new Transaction(
+                new BigDecimal("100.00"), TransactionType.GASTO, LocalDate.of(2026, 9, 3), "Primero del dia", ana, otros));
+        Transaction segundo = transactionRepository.save(new Transaction(
+                new BigDecimal("200.00"), TransactionType.GASTO, LocalDate.of(2026, 9, 3), "Segundo del dia", ana, otros));
+
+        assertThat(transactionRepository.findByUserIdOrderByDateDescIdDesc(ana.getId()))
+                .extracting(Transaction::getId)
+                .startsWith(segundo.getId(), primero.getId());
     }
 }
