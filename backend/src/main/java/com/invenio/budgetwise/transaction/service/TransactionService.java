@@ -52,6 +52,22 @@ public class TransactionService {
                 .toList();
     }
 
+    /**
+     * Listado con filtro opcional por categoria (issue #8). Sin categoria es el
+     * listado de siempre. Con una categoria ajena la consulta devuelve una lista
+     * vacia, porque tambien filtra por usuario: nunca movimientos de otra persona.
+     */
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> listar(String email, Long categoryId) {
+        if (categoryId == null) {
+            return listar(email);
+        }
+        Long userId = usuarioAutenticado(email).getId();
+        return transactionRepository.findByUserIdAndCategoryIdOrderByDateDesc(userId, categoryId).stream()
+                .map(this::aRespuesta)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public TransactionResponse obtener(String email, Long id) {
         Long userId = usuarioAutenticado(email).getId();

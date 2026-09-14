@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,9 +33,11 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
+    /** ?categoryId= es opcional: filtra la lista por categoria (issue #8). */
     @GetMapping
-    public List<TransactionResponse> listar(Authentication authentication) {
-        return transactionService.listar(authentication.getName());
+    public List<TransactionResponse> listar(
+            Authentication authentication, @RequestParam(required = false) Long categoryId) {
+        return transactionService.listar(authentication.getName(), categoryId);
     }
 
     /** No la pide la issue #7 al pie de la letra, pero el frontend la necesita para precargar el formulario de edicion antes de un PUT. */

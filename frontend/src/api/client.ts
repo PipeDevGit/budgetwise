@@ -16,6 +16,35 @@ export type DatosRegistro = Credenciales & {
   name: string
 }
 
+export type TipoTransaccion = 'INGRESO' | 'GASTO'
+
+/** Un movimiento, tal como lo devuelve la API de la issue #7. */
+export type Transaccion = {
+  id: number
+  amount: number
+  type: TipoTransaccion
+  date: string
+  description: string | null
+  categoryId: number
+  categoryName: string
+}
+
+/** Lo que espera POST /api/transactions. El monto viaja siempre positivo. */
+export type NuevaTransaccion = {
+  amount: number
+  type: TipoTransaccion
+  date: string
+  categoryId: number
+  description: string | null
+}
+
+/** Contrato pedido a @yariel3199-gif en la issue #8; todavia no existe. */
+export type Categoria = {
+  id: number
+  name: string
+  predefinida: boolean
+}
+
 /** Lo que devuelven /api/auth/register y /api/auth/login (issue #4). */
 export type RespuestaAuth = {
   token: string
@@ -89,4 +118,21 @@ export function iniciarSesion(datos: Credenciales): Promise<RespuestaAuth> {
     method: 'POST',
     body: JSON.stringify(datos),
   })
+}
+
+export function listarTransacciones(): Promise<Transaccion[]> {
+  return pedir<Transaccion[]>('/api/transactions')
+}
+
+export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> {
+  return pedir<Transaccion>('/api/transactions', {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  })
+}
+
+// El endpoint todavia no existe: pedido en la issue #8. Hasta que entre,
+// la pantalla muestra la lista y el saldo, pero no deja agregar.
+export function listarCategorias(): Promise<Categoria[]> {
+  return pedir<Categoria[]>('/api/categories')
 }
