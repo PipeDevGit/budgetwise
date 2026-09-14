@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { guardarToken } from '../auth/session'
 import {
+  crearCategoria,
   crearTransaccion,
   getHealth,
   iniciarSesion,
@@ -172,5 +173,25 @@ describe('pedir()', () => {
     await listarCategorias()
 
     expect(String(fetchFalso.mock.calls[0][0])).toMatch(/\/api\/categories$/)
+  })
+
+  // Issue #8: el filtro lo hace la API, asi que la ruta es el contrato.
+  it('listarTransacciones con categoria usa el filtro de la API', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarTransacciones(3)
+
+    expect(String(fetchFalso.mock.calls[0][0])).toMatch(/\/api\/transactions\?categoryId=3$/)
+  })
+
+  it('crearCategoria manda un POST a /api/categories con el nombre', async () => {
+    const fetchFalso = simularFetch(respuesta(201, { id: 6, name: 'Gimnasio', predefinida: false }))
+
+    await crearCategoria('Gimnasio')
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/categories$/)
+    expect(opciones?.method).toBe('POST')
+    expect(JSON.parse(String(opciones?.body))).toEqual({ name: 'Gimnasio' })
   })
 })

@@ -155,3 +155,37 @@ th {
     color: #ff8a80;
   }
 }
+
+/* Categorias propias y filtro de la lista (issue #8). */
+
+section > form {
+  margin-bottom: 1.5rem;
+}
+
+.titulo-lista {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+}
+
+.titulo-lista h3 {
+  margin: 0;
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filtro select {
+  padding: 0.4rem;
+  font: inherit;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}

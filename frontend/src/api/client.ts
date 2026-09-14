@@ -38,7 +38,7 @@ export type NuevaTransaccion = {
   description: string | null
 }
 
-/** Contrato pedido a @yariel3199-gif en la issue #8; todavia no existe. */
+/** Lo que devuelve GET /api/categories (issue #8, PR #58). */
 export type Categoria = {
   id: number
   name: string
@@ -120,8 +120,14 @@ export function iniciarSesion(datos: Credenciales): Promise<RespuestaAuth> {
   })
 }
 
-export function listarTransacciones(): Promise<Transaccion[]> {
-  return pedir<Transaccion[]>('/api/transactions')
+/**
+ * Sin categoria trae todos los movimientos. Con categoria usa el filtro que
+ * ya hace la API (?categoryId=, PR #58), en vez de repetirlo en el frontend.
+ */
+export function listarTransacciones(categoryId?: number): Promise<Transaccion[]> {
+  const ruta =
+    categoryId === undefined ? '/api/transactions' : `/api/transactions?categoryId=${categoryId}`
+  return pedir<Transaccion[]>(ruta)
 }
 
 export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> {
@@ -131,8 +137,15 @@ export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> 
   })
 }
 
-// El endpoint todavia no existe: pedido en la issue #8. Hasta que entre,
-// la pantalla muestra la lista y el saldo, pero no deja agregar.
+/** Las predefinidas mas las propias del usuario (issue #8). */
 export function listarCategorias(): Promise<Categoria[]> {
   return pedir<Categoria[]>('/api/categories')
+}
+
+/** POST /api/categories. Si el nombre ya existe, la API responde 409 con su mensaje. */
+export function crearCategoria(name: string): Promise<Categoria> {
+  return pedir<Categoria>('/api/categories', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
 }
