@@ -189,3 +189,33 @@ section > form {
   background: transparent;
   color: inherit;
 }
+
+/* Presupuestos del mes y alerta de sobrepaso (issue #13). */
+
+.alerta-presupuesto {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #b3261e;
+  border-radius: 6px;
+  background: rgba(179, 38, 30, 0.1);
+}
+
+.alerta-presupuesto ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alerta-presupuesto {
+    border-color: #ff8a80;
+    background: rgba(255, 138, 128, 0.12);
+  }
+}
+
+.presupuestos {
+  margin-bottom: 1.5rem;
+}
+
+.presupuestos h3 {
+  margin: 0 0 0.5rem;
+}

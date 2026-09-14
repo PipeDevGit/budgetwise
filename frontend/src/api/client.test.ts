@@ -3,9 +3,11 @@ import { guardarToken } from '../auth/session'
 import {
   crearCategoria,
   crearTransaccion,
+  definirPresupuesto,
   getHealth,
   iniciarSesion,
   listarCategorias,
+  listarPresupuestos,
   listarTransacciones,
   registrar,
 } from './client'
@@ -193,5 +195,27 @@ describe('pedir()', () => {
     expect(String(url)).toMatch(/\/api\/categories$/)
     expect(opciones?.method).toBe('POST')
     expect(JSON.parse(String(opciones?.body))).toEqual({ name: 'Gimnasio' })
+  })
+
+  // Issue #13, PR #59.
+  it('listarPresupuestos pide GET /api/budgets', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarPresupuestos()
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/budgets$/)
+    expect(opciones?.method ?? 'GET').toBe('GET')
+  })
+
+  it('definirPresupuesto manda un PUT a /api/budgets con la categoria y el limite', async () => {
+    const fetchFalso = simularFetch(respuesta(200, { id: 1 }))
+
+    await definirPresupuesto(1, 80000)
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/budgets$/)
+    expect(opciones?.method).toBe('PUT')
+    expect(JSON.parse(String(opciones?.body))).toEqual({ categoryId: 1, monthlyLimit: 80000 })
   })
 })

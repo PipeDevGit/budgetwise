@@ -149,3 +149,34 @@ export function crearCategoria(name: string): Promise<Categoria> {
     body: JSON.stringify({ name }),
   })
 }
+
+/** Un presupuesto del mes con lo gastado, tal como lo devuelve GET /api/budgets (issue #13, PR #59). */
+export type EstadoPresupuesto = {
+  id: number
+  categoryId: number
+  categoryName: string
+  period: string
+  monthlyLimit: number
+  spent: number
+  /** La API decide si se paso del limite. El frontend no compara montos: solo lee esta marca. */
+  exceeded: boolean
+}
+
+/** Los presupuestos del mes en curso. El mes lo decide la API. */
+export function listarPresupuestos(): Promise<EstadoPresupuesto[]> {
+  return pedir<EstadoPresupuesto[]>('/api/budgets')
+}
+
+/**
+ * PUT y no POST: si la categoria ya tenia presupuesto este mes, la API
+ * reemplaza el limite en vez de crear otro.
+ */
+export function definirPresupuesto(
+  categoryId: number,
+  monthlyLimit: number,
+): Promise<EstadoPresupuesto> {
+  return pedir<EstadoPresupuesto>('/api/budgets', {
+    method: 'PUT',
+    body: JSON.stringify({ categoryId, monthlyLimit }),
+  })
+}
