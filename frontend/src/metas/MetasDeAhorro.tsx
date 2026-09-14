@@ -3,7 +3,11 @@ import { listarMetas, type Meta } from '../api/client'
 import { FormularioMeta } from './FormularioMeta'
 import { TarjetaMeta } from './TarjetaMeta'
 
-export function MetasDeAhorro() {
+type Props = {
+  onCerrarSesion: () => void
+}
+
+export function MetasDeAhorro({ onCerrarSesion }: Props) {
   const [metas, setMetas] = useState<Meta[]>([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +30,12 @@ export function MetasDeAhorro() {
 
   return (
     <section className="metas">
-      <h2>Metas de ahorro</h2>
+      <header className="cabecera">
+        <h2>Metas de ahorro</h2>
+        <button type="button" onClick={onCerrarSesion}>
+          Cerrar sesion
+        </button>
+      </header>
 
       {cargando && <p>Cargando metas…</p>}
 

@@ -12,6 +12,7 @@ import {
   listarMetas,
   listarPresupuestos,
   listarTransacciones,
+  obtenerSaldo,
   registrar,
 } from './client'
 
@@ -257,5 +258,13 @@ describe('pedir()', () => {
     expect(String(url)).toMatch(/\/api\/goals\/7\/savings$/)
     expect(opciones?.method).toBe('PUT')
     expect(JSON.parse(String(opciones?.body))).toEqual({ savedAmount: 25000 })
+  })
+
+  it('obtenerSaldo pide GET /api/balance', async () => {
+    const fetchFalso = simularFetch(respuesta(200, { totalIncome: 0, totalExpenses: 0, balance: 0 }))
+
+    await obtenerSaldo()
+
+    expect(String(fetchFalso.mock.calls[0][0])).toMatch(/\/api\/balance$/)
   })
 })
