@@ -16,9 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 /**
  * CRUD de movimientos (issue #7). Todo pasa por el email del usuario
- * autenticado (lo deja JwtAuthenticationFilter en el Authentication): ninguna
- * consulta ni escritura ocurre sin saber de quien es, tal como pide la
- * issue #7 y revisa CLAUDE.md en cada PR.
+ * autenticado (lo deja JwtAuthenticationFilter en el Authentication):
+ * ninguna consulta ni escritura ocurre sin saber de quien es, tal como pide
+ * la issue #7 y revisa CLAUDE.md en cada PR.
  *
  * Los metodos de lectura son @Transactional(readOnly = true) porque
  * Transaction.category es LAZY: sin una transaccion abierta durante el
@@ -47,7 +47,7 @@ public class TransactionService {
     @Transactional(readOnly = true)
     public List<TransactionResponse> listar(String email) {
         Long userId = usuarioAutenticado(email).getId();
-        return transactionRepository.findByUserIdOrderByDateDesc(userId).stream()
+        return transactionRepository.findByUserIdOrderByDateDescIdDesc(userId).stream()
                 .map(this::aRespuesta)
                 .toList();
     }

@@ -107,7 +107,7 @@ class TransactionServiceTest {
     void listarDevuelveSoloLasDelUsuarioAutenticado() {
         Transaction transaction = new Transaction(
                 new BigDecimal("200.00"), TransactionType.INGRESO, LocalDate.now(), "Freelance", ana, comida);
-        when(transactionRepository.findByUserIdOrderByDateDesc(1L)).thenReturn(List.of(transaction));
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of(transaction));
 
         List<TransactionResponse> respuesta = transactionService.listar("ana@example.com");
 
