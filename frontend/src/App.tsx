@@ -2,25 +2,9 @@ import { useState } from 'react'
 import { LoginForm } from './auth/LoginForm'
 import { RegisterForm } from './auth/RegisterForm'
 import { borrarToken, guardarToken, leerToken } from './auth/session'
+import { PantallaTransacciones } from './transacciones/PantallaTransacciones'
 
 type Vista = 'login' | 'registro'
-
-/**
- * Marcador de posicion. El panel de control de verdad es la issue #11; aca
- * solo hace falta un destino al que llegar despues de iniciar sesion, que es
- * lo que pide el criterio de la #5.
- */
-function Dashboard({ onCerrarSesion }: { onCerrarSesion: () => void }) {
-  return (
-    <section>
-      <h2>Panel de control</h2>
-      <p>Sesion iniciada. El panel real llega con la issue #11.</p>
-      <button type="button" onClick={onCerrarSesion}>
-        Cerrar sesion
-      </button>
-    </section>
-  )
-}
 
 function App() {
   // Leer el token al arrancar es lo que hace que la sesion sobreviva a
@@ -41,7 +25,7 @@ function App() {
 
   let contenido
   if (token) {
-    contenido = <Dashboard onCerrarSesion={cerrarSesion} />
+    contenido = <PantallaTransacciones onCerrarSesion={cerrarSesion} />
   } else if (vista === 'login') {
     contenido = (
       <LoginForm onSesionIniciada={abrirSesion} onIrARegistro={() => setVista('registro')} />
