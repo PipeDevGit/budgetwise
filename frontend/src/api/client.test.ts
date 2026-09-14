@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { guardarToken } from '../auth/session'
-import { getHealth, iniciarSesion, registrar } from './client'
+import {
+  crearTransaccion,
+  getHealth,
+  iniciarSesion,
+  listarCategorias,
+  listarTransacciones,
+  registrar,
+} from './client'
 
 /** Vitest corre en Node, donde no existe localStorage: se reemplaza en memoria. */
 function localStorageEnMemoria() {
@@ -122,5 +129,48 @@ describe('pedir()', () => {
     simularFetch(respuesta(204))
 
     await expect(getHealth()).resolves.toBeUndefined()
+  })
+
+  // Las rutas de la issue #7, fijadas para que un cambio de contrato se note
+  // aca y no en la pantalla.
+  it('listarTransacciones pide GET /api/transactions', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarTransacciones()
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/transactions$/)
+    expect(opciones?.method ?? 'GET').toBe('GET')
+  })
+
+  it('crearTransaccion manda un POST a /api/transactions con el movimiento', async () => {
+    const fetchFalso = simularFetch(respuesta(201, { id: 1 }))
+
+    await crearTransaccion({
+      amount: 5000,
+      type: 'GASTO',
+      date: '2026-09-12',
+      categoryId: 3,
+      description: 'Almuerzo',
+    })
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/transactions$/)
+    expect(opciones?.method).toBe('POST')
+    expect(JSON.parse(String(opciones?.body))).toEqual({
+      amount: 5000,
+      type: 'GASTO',
+      date: '2026-09-12',
+      categoryId: 3,
+      description: 'Almuerzo',
+    })
+  })
+
+  it('listarCategorias pide GET /api/categories', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarCategorias()
+
+    expect(String(fetchFalso.mock.calls[0][0])).toMatch(/\/api\/categories$/)
   })
 })
