@@ -189,3 +189,40 @@ section > form {
   background: transparent;
   color: inherit;
 }
+
+/* Navegacion entre secciones y panel de control (issue #11). */
+
+.secciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.secciones button {
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.secciones button[aria-pressed='true'] {
+  font-weight: 600;
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.tarjeta {
+  max-width: 22rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 6px;
+}
+
+.monto-tarjeta {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}

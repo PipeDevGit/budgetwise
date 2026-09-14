@@ -149,3 +149,14 @@ export function crearCategoria(name: string): Promise<Categoria> {
     body: JSON.stringify({ name }),
   })
 }
+
+/** Lo que devuelve GET /api/balance (issue #15): los totales calculados por el servidor. */
+export type Saldo = {
+  totalIncome: number
+  totalExpenses: number
+  balance: number
+}
+
+export function obtenerSaldo(): Promise<Saldo> {
+  return pedir<Saldo>('/api/balance')
+}
