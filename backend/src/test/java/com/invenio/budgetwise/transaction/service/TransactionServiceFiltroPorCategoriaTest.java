@@ -46,11 +46,11 @@ class TransactionServiceFiltroPorCategoriaTest {
 
     @Test
     void sinCategoriaDevuelveElListadoCompletoDelUsuario() {
-        when(transactionRepository.findByUserIdOrderByDateDesc(1L)).thenReturn(List.of());
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of());
 
         transactionService.listar("ana@example.com", null);
 
-        verify(transactionRepository).findByUserIdOrderByDateDesc(1L);
+        verify(transactionRepository).findByUserIdOrderByDateDescIdDesc(1L);
         verify(transactionRepository, never()).findByUserIdAndCategoryIdOrderByDateDesc(any(), any());
     }
 
@@ -66,6 +66,6 @@ class TransactionServiceFiltroPorCategoriaTest {
         List<TransactionResponse> respuesta = transactionService.listar("ana@example.com", 10L);
 
         assertThat(respuesta).extracting(TransactionResponse::description).containsExactly("Almuerzo");
-        verify(transactionRepository, never()).findByUserIdOrderByDateDesc(any());
+        verify(transactionRepository, never()).findByUserIdOrderByDateDescIdDesc(any());
     }
 }
