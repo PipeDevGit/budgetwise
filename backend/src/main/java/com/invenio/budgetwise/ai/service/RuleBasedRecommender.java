@@ -102,7 +102,8 @@ public class RuleBasedRecommender {
                 + CIEN.subtract(porcentaje) + "%.";
     }
 
-    private static String monto(BigDecimal valor) {
+    /** Montos con el formato de la aplicacion (es-CR). GeminiRecommender lo usa para que el modelo los copie igual. */
+    static String monto(BigDecimal valor) {
         NumberFormat formato = NumberFormat.getNumberInstance(Locale.forLanguageTag("es-CR"));
         formato.setMinimumFractionDigits(2);
         formato.setMaximumFractionDigits(2);

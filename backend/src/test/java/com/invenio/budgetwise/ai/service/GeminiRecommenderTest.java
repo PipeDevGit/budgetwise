@@ -85,7 +85,7 @@ class GeminiRecommenderTest {
     }
 
     @Test
-    void elPromptLlevaLosMontosYLasCategoriasPeroNoLosNombresDeLasMetas() {
+    void elPromptPideAccionesYLlevaLosMontosConElFormatoDeLaAppPeroNoLosNombresDeLasMetas() {
         ResumenFinanciero resumen = new ResumenFinanciero(
                 LocalDate.of(2026, 9, 13),
                 new BigDecimal("400000.00"),
@@ -95,13 +95,16 @@ class GeminiRecommenderTest {
                 List.of(new ResumenFinanciero.Meta(
                         "Operacion de mi mama", new BigDecimal("600000"), BigDecimal.ZERO, LocalDate.of(2026, 12, 20))));
 
-        String prompt = sinClave.construirPrompt(resumen);
+        // El separador de miles de es-CR es un espacio que no corta la linea: se normaliza para comparar.
+        String prompt = sinClave.construirPrompt(resumen).replace('\u00A0', ' ').replace('\u202F', ' ');
 
         assertThat(prompt)
+                .contains("accion concreta")
                 .contains("2026-09")
-                .contains("400000.00")
-                .contains("Comida 55000.00")
-                .contains("objetivo 600000")
+                .contains("400 000,00")
+                .contains("Comida: 55 000,00")
+                .contains("objetivo 600 000,00")
+                .doesNotContain("400000.00")
                 .doesNotContain("Operacion de mi mama");
     }
 
