@@ -3,8 +3,8 @@ package com.invenio.budgetwise.transaction.dto;
 import java.math.BigDecimal;
 
 /**
- * Saldo automatico (issue #15): ingresos totales, gastos totales y el saldo
- * resultante, sobre las transacciones del usuario autenticado.
+ * Totales del usuario autenticado (issue #15). Los tres montos viajan juntos
+ * para que el panel de la #11 no tenga que sumar nada del lado del cliente.
  */
-public record BalanceResponse(BigDecimal totalIncome, BigDecimal totalExpense, BigDecimal balance) {
+public record BalanceResponse(BigDecimal totalIncome, BigDecimal totalExpenses, BigDecimal balance) {
 }
