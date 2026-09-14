@@ -1,11 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { guardarToken } from '../auth/session'
 import {
+  actualizarAhorro,
   crearCategoria,
+  crearMeta,
   crearTransaccion,
+  definirPresupuesto,
   getHealth,
   iniciarSesion,
   listarCategorias,
+  listarMetas,
+  listarPresupuestos,
   listarTransacciones,
   obtenerSaldo,
   registrar,
@@ -194,6 +199,65 @@ describe('pedir()', () => {
     expect(String(url)).toMatch(/\/api\/categories$/)
     expect(opciones?.method).toBe('POST')
     expect(JSON.parse(String(opciones?.body))).toEqual({ name: 'Gimnasio' })
+  })
+
+  // Issue #13, PR #59.
+  it('listarPresupuestos pide GET /api/budgets', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarPresupuestos()
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/budgets$/)
+    expect(opciones?.method ?? 'GET').toBe('GET')
+  })
+
+  it('definirPresupuesto manda un PUT a /api/budgets con la categoria y el limite', async () => {
+    const fetchFalso = simularFetch(respuesta(200, { id: 1 }))
+
+    await definirPresupuesto(1, 80000)
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/budgets$/)
+    expect(opciones?.method).toBe('PUT')
+    expect(JSON.parse(String(opciones?.body))).toEqual({ categoryId: 1, monthlyLimit: 80000 })
+  })
+
+  // Issue #12, PR #60.
+  it('listarMetas pide GET /api/goals', async () => {
+    const fetchFalso = simularFetch(respuesta(200, []))
+
+    await listarMetas()
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/goals$/)
+    expect(opciones?.method ?? 'GET').toBe('GET')
+  })
+
+  it('crearMeta manda un POST a /api/goals con nombre, objetivo y fecha limite', async () => {
+    const fetchFalso = simularFetch(respuesta(201, { id: 1 }))
+
+    await crearMeta({ name: 'Viaje', targetAmount: 300000, targetDate: '2026-12-15' })
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/goals$/)
+    expect(opciones?.method).toBe('POST')
+    expect(JSON.parse(String(opciones?.body))).toEqual({
+      name: 'Viaje',
+      targetAmount: 300000,
+      targetDate: '2026-12-15',
+    })
+  })
+
+  it('actualizarAhorro manda un PUT a /api/goals/{id}/savings con el total ahorrado', async () => {
+    const fetchFalso = simularFetch(respuesta(200, { id: 7 }))
+
+    await actualizarAhorro(7, 25000)
+
+    const [url, opciones] = fetchFalso.mock.calls[0]
+    expect(String(url)).toMatch(/\/api\/goals\/7\/savings$/)
+    expect(opciones?.method).toBe('PUT')
+    expect(JSON.parse(String(opciones?.body))).toEqual({ savedAmount: 25000 })
   })
 
   it('obtenerSaldo pide GET /api/balance', async () => {
