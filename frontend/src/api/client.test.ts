@@ -6,6 +6,7 @@ import {
   iniciarSesion,
   listarCategorias,
   listarTransacciones,
+  obtenerRecomendaciones,
   obtenerSaldo,
   registrar,
 } from './client'
@@ -142,6 +143,14 @@ describe('pedir()', () => {
     const [url, opciones] = fetchFalso.mock.calls[0]
     expect(String(url)).toMatch(/\/api\/transactions$/)
     expect(opciones?.method ?? 'GET').toBe('GET')
+  })
+
+  it('obtenerRecomendaciones pide GET /api/ai/recommendations', async () => {
+    const fetchFalso = simularFetch(respuesta(200, { recommendations: [], source: 'reglas' }))
+
+    await obtenerRecomendaciones()
+
+    expect(String(fetchFalso.mock.calls[0][0])).toMatch(/\/api\/ai\/recommendations$/)
   })
 
   it('crearTransaccion manda un POST a /api/transactions con el movimiento', async () => {
