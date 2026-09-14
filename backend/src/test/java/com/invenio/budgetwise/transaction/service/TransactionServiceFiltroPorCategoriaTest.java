@@ -51,7 +51,7 @@ class TransactionServiceFiltroPorCategoriaTest {
         transactionService.listar("ana@example.com", null);
 
         verify(transactionRepository).findByUserIdOrderByDateDescIdDesc(1L);
-        verify(transactionRepository, never()).findByUserIdAndCategoryIdOrderByDateDesc(any(), any());
+        verify(transactionRepository, never()).findByUserIdAndCategoryIdOrderByDateDescIdDesc(any(), any());
     }
 
     @Test
@@ -61,7 +61,7 @@ class TransactionServiceFiltroPorCategoriaTest {
         when(comida.getName()).thenReturn("Comida");
         Transaction almuerzo = new Transaction(new BigDecimal("5000.00"), TransactionType.GASTO,
                 LocalDate.of(2026, 9, 1), "Almuerzo", null, comida);
-        when(transactionRepository.findByUserIdAndCategoryIdOrderByDateDesc(1L, 10L)).thenReturn(List.of(almuerzo));
+        when(transactionRepository.findByUserIdAndCategoryIdOrderByDateDescIdDesc(1L, 10L)).thenReturn(List.of(almuerzo));
 
         List<TransactionResponse> respuesta = transactionService.listar("ana@example.com", 10L);
 
