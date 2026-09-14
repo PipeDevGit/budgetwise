@@ -180,3 +180,43 @@ export function definirPresupuesto(
     body: JSON.stringify({ categoryId, monthlyLimit }),
   })
 }
+
+/** Una meta de ahorro, tal como la devuelve /api/goals (issue #12, PR #60). */
+export type Meta = {
+  id: number
+  name: string
+  targetAmount: number
+  savedAmount: number
+  targetDate: string
+  /** Lo calcula la API: entero de 0 a 100, redondeado hacia abajo. */
+  progressPercent: number
+}
+
+/** Lo que espera POST /api/goals. La fecha limite no puede estar en el pasado. */
+export type NuevaMeta = {
+  name: string
+  targetAmount: number
+  targetDate: string
+}
+
+export function listarMetas(): Promise<Meta[]> {
+  return pedir<Meta[]>('/api/goals')
+}
+
+export function crearMeta(datos: NuevaMeta): Promise<Meta> {
+  return pedir<Meta>('/api/goals', {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  })
+}
+
+/**
+ * La API reemplaza lo ahorrado, no le suma: se manda el total que lleva
+ * ahorrado hasta ahora, y responde la meta con el progreso ya recalculado.
+ */
+export function actualizarAhorro(id: number, savedAmount: number): Promise<Meta> {
+  return pedir<Meta>(`/api/goals/${id}/savings`, {
+    method: 'PUT',
+    body: JSON.stringify({ savedAmount }),
+  })
+}

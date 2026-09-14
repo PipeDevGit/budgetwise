@@ -219,3 +219,42 @@ section > form {
 .presupuestos h3 {
   margin: 0 0 0.5rem;
 }
+
+/* Metas de ahorro (issue #12). */
+
+.metas {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+}
+
+.metas h2 {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+}
+
+.tarjeta-meta {
+  max-width: 22rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 6px;
+}
+
+.cabecera-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tarjeta-meta progress {
+  width: 100%;
+  height: 0.9rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.detalle-meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}

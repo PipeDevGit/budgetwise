@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LoginForm } from './auth/LoginForm'
 import { RegisterForm } from './auth/RegisterForm'
 import { borrarToken, guardarToken, leerToken } from './auth/session'
+import { MetasDeAhorro } from './metas/MetasDeAhorro'
 import { PantallaTransacciones } from './transacciones/PantallaTransacciones'
 
 type Vista = 'login' | 'registro'
@@ -25,7 +26,12 @@ function App() {
 
   let contenido
   if (token) {
-    contenido = <PantallaTransacciones onCerrarSesion={cerrarSesion} />
+    contenido = (
+      <>
+        <PantallaTransacciones onCerrarSesion={cerrarSesion} />
+        <MetasDeAhorro />
+      </>
+    )
   } else if (vista === 'login') {
     contenido = (
       <LoginForm onSesionIniciada={abrirSesion} onIrARegistro={() => setVista('registro')} />
