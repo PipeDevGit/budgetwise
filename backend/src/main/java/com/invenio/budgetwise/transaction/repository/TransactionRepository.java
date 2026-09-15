@@ -12,12 +12,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findByUserIdOrderByDateDesc(Long userId);
+    /**
+     * OrderByDateDescIdDesc (issue #15): con solo la fecha, dos movimientos
+     * del mismo dia podian salir en cualquier orden entre una llamada y
+     * otra, y la lista "saltaba" al agregar algo. Lo senalo Pablo revisando
+     * el PR #53; se corrige aca porque el calculo del saldo reusa este mismo
+     * metodo para sumar ingresos y gastos.
+     */
+    List<Transaction> findByUserIdOrderByDateDescIdDesc(Long userId);
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
-    /** Filtro por categoria de la issue #8. Sigue filtrando por usuario. */
-    List<Transaction> findByUserIdAndCategoryIdOrderByDateDesc(Long userId, Long categoryId);
+    /**
+     * Filtro por categoria de la issue #8. Sigue filtrando por usuario, y
+     * desempata por id igual que el listado completo: si no, al filtrar
+     * volverian a "saltar" los movimientos del mismo dia.
+     */
+    List<Transaction> findByUserIdAndCategoryIdOrderByDateDescIdDesc(Long userId, Long categoryId);
 
     List<Transaction> findByUserIdAndDateBetween(Long userId, LocalDate desde, LocalDate hasta);
 }

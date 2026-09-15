@@ -46,12 +46,12 @@ class TransactionServiceFiltroPorCategoriaTest {
 
     @Test
     void sinCategoriaDevuelveElListadoCompletoDelUsuario() {
-        when(transactionRepository.findByUserIdOrderByDateDesc(1L)).thenReturn(List.of());
+        when(transactionRepository.findByUserIdOrderByDateDescIdDesc(1L)).thenReturn(List.of());
 
         transactionService.listar("ana@example.com", null);
 
-        verify(transactionRepository).findByUserIdOrderByDateDesc(1L);
-        verify(transactionRepository, never()).findByUserIdAndCategoryIdOrderByDateDesc(any(), any());
+        verify(transactionRepository).findByUserIdOrderByDateDescIdDesc(1L);
+        verify(transactionRepository, never()).findByUserIdAndCategoryIdOrderByDateDescIdDesc(any(), any());
     }
 
     @Test
@@ -61,11 +61,11 @@ class TransactionServiceFiltroPorCategoriaTest {
         when(comida.getName()).thenReturn("Comida");
         Transaction almuerzo = new Transaction(new BigDecimal("5000.00"), TransactionType.GASTO,
                 LocalDate.of(2026, 9, 1), "Almuerzo", null, comida);
-        when(transactionRepository.findByUserIdAndCategoryIdOrderByDateDesc(1L, 10L)).thenReturn(List.of(almuerzo));
+        when(transactionRepository.findByUserIdAndCategoryIdOrderByDateDescIdDesc(1L, 10L)).thenReturn(List.of(almuerzo));
 
         List<TransactionResponse> respuesta = transactionService.listar("ana@example.com", 10L);
 
         assertThat(respuesta).extracting(TransactionResponse::description).containsExactly("Almuerzo");
-        verify(transactionRepository, never()).findByUserIdOrderByDateDesc(any());
+        verify(transactionRepository, never()).findByUserIdOrderByDateDescIdDesc(any());
     }
 }

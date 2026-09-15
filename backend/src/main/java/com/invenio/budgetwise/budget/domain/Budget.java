@@ -62,6 +62,11 @@ public class Budget {
         this.category = category;
     }
 
+    /** Redefinir el presupuesto del mes (issue #13): cambia el limite, nunca el mes ni la categoria. */
+    public void actualizarLimite(BigDecimal monthlyLimit) {
+        this.monthlyLimit = monthlyLimit;
+    }
+
     public Long getId() {
         return id;
     }
