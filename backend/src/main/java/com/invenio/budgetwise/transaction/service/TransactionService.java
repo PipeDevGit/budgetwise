@@ -63,7 +63,7 @@ public class TransactionService {
             return listar(email);
         }
         Long userId = usuarioAutenticado(email).getId();
-        return transactionRepository.findByUserIdAndCategoryIdOrderByDateDesc(userId, categoryId).stream()
+        return transactionRepository.findByUserIdAndCategoryIdOrderByDateDescIdDesc(userId, categoryId).stream()
                 .map(this::aRespuesta)
                 .toList();
     }
