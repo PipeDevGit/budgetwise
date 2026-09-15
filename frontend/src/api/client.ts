@@ -137,6 +137,16 @@ export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> 
   })
 }
 
+/** Lo que devuelve GET /api/ai/recommendations (issue #16): tres consejos y quien los genero. */
+export type RespuestaRecomendaciones = {
+  recommendations: string[]
+  source: string
+}
+
+export function obtenerRecomendaciones(): Promise<RespuestaRecomendaciones> {
+  return pedir<RespuestaRecomendaciones>('/api/ai/recommendations')
+}
+
 /** Las predefinidas mas las propias del usuario (issue #8). */
 export function listarCategorias(): Promise<Categoria[]> {
   return pedir<Categoria[]>('/api/categories')

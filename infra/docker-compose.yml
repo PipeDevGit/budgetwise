@@ -30,7 +30,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-budgetwise_dev}
       BUDGETWISE_CORS_ALLOWED_ORIGIN: http://localhost:5173
       JWT_SECRET: ${JWT_SECRET:-clave-de-desarrollo-no-usar-fuera-de-local}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Recomendaciones con IA (D-12). Sin clave, el endpoint usa las reglas (D-03).
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
     ports: ["8080:8080"]
     depends_on:
       db: {condition: service_healthy}

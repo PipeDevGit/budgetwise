@@ -44,9 +44,22 @@ class TransactionFiltroPorCategoriaTest {
         transactionRepository.save(gasto("Bus de Ana", ana, transporte));
         transactionRepository.save(gasto("Cena de Beto", beto, comida));
 
-        assertThat(transactionRepository.findByUserIdAndCategoryIdOrderByDateDesc(ana.getId(), comida.getId()))
+        assertThat(transactionRepository.findByUserIdAndCategoryIdOrderByDateDescIdDesc(ana.getId(), comida.getId()))
                 .extracting(Transaction::getDescription)
                 .containsExactly("Almuerzo de Ana");
+    }
+
+    @Test
+    void alFiltrarOrdenaLosMovimientosDelMismoDiaPorIdDescendente() {
+        User ana = userRepository.save(new User("ana@invenio.edu", "hash", "Ana"));
+        Category comida = categoryRepository.save(Category.predefinida("Comida"));
+
+        Transaction desayuno = transactionRepository.save(gasto("Desayuno", ana, comida));
+        Transaction almuerzo = transactionRepository.save(gasto("Almuerzo", ana, comida));
+
+        assertThat(transactionRepository.findByUserIdAndCategoryIdOrderByDateDescIdDesc(ana.getId(), comida.getId()))
+                .extracting(Transaction::getId)
+                .containsExactly(almuerzo.getId(), desayuno.getId());
     }
 
     private static Transaction gasto(String descripcion, User user, Category category) {
