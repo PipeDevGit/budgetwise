@@ -131,6 +131,16 @@ export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> 
   })
 }
 
+/** Lo que devuelve GET /api/ai/recommendations (issue #16): tres consejos y quien los genero. */
+export type RespuestaRecomendaciones = {
+  recommendations: string[]
+  source: string
+}
+
+export function obtenerRecomendaciones(): Promise<RespuestaRecomendaciones> {
+  return pedir<RespuestaRecomendaciones>('/api/ai/recommendations')
+}
+
 // El endpoint todavia no existe: pedido en la issue #8. Hasta que entre,
 // la pantalla muestra la lista y el saldo, pero no deja agregar.
 export function listarCategorias(): Promise<Categoria[]> {
