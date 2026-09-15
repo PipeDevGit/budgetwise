@@ -14,6 +14,8 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,30 +25,35 @@ import org.springframework.web.server.ResponseStatusException;
  * Recomendaciones del mes (issue #16). Arma el resumen financiero del usuario
  * autenticado y se lo pasa al recomendador.
  *
- * D-03 pide llamar primero a un modelo y usar las reglas como respaldo. Por
- * ahora responde solo el recomendador por reglas: la llamada al modelo necesita
- * el SDK de Anthropic, que es una dependencia nueva y espera la aprobacion del
- * equipo (shared-change).
+ * Primero intenta con Gemini (D-12). Si no hay clave configurada, o si la
+ * llamada falla por cualquier motivo, responde el recomendador por reglas
+ * (D-03): la demo es en vivo y no puede depender de la red.
  */
 @Service
 public class RecommendationService {
 
     static final String FUENTE_REGLAS = "reglas";
+    static final String FUENTE_GEMINI = "gemini";
+
+    private static final Logger log = LoggerFactory.getLogger(RecommendationService.class);
 
     private final TransactionRepository transactionRepository;
     private final SavingsGoalRepository savingsGoalRepository;
     private final UserRepository userRepository;
     private final RuleBasedRecommender ruleBasedRecommender;
+    private final GeminiRecommender geminiRecommender;
 
     public RecommendationService(
             TransactionRepository transactionRepository,
             SavingsGoalRepository savingsGoalRepository,
             UserRepository userRepository,
-            RuleBasedRecommender ruleBasedRecommender) {
+            RuleBasedRecommender ruleBasedRecommender,
+            GeminiRecommender geminiRecommender) {
         this.transactionRepository = transactionRepository;
         this.savingsGoalRepository = savingsGoalRepository;
         this.userRepository = userRepository;
         this.ruleBasedRecommender = ruleBasedRecommender;
+        this.geminiRecommender = geminiRecommender;
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +66,15 @@ public class RecommendationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         ResumenFinanciero resumen = resumir(user.getId(), hoy);
+        if (geminiRecommender.estaConfigurado()) {
+            try {
+                return new RecommendationResponse(geminiRecommender.recomendar(resumen), FUENTE_GEMINI);
+            } catch (RuntimeException e) {
+                // Sin conexion, timeout, cuota agotada o respuesta invalida: todo cae a
+                // las reglas. Queda en el log para poder ver en la demo por que paso.
+                log.warn("Gemini no respondio, se usan las reglas: {}", e.getMessage());
+            }
+        }
         return new RecommendationResponse(ruleBasedRecommender.recomendar(resumen), FUENTE_REGLAS);
     }
 
