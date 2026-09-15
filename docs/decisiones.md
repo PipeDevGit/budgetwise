@@ -293,3 +293,48 @@ consultan cada pocos segundos: si se loguearan, taparían las peticiones reales.
   respuesta, no un descuido.
 - Los logs locales con `mvnw spring-boot:run` también salen en JSON, que es menos
   cómodo de leer a ojo. Se aceptó para no tener dos configuraciones distintas.
+
+## D-12 · Recomendaciones con Gemini Flash-Lite en su capa gratuita
+
+**Fecha:** 2026-09-13 · **Issue:** #16
+
+**Contexto.** D-03 pide que las recomendaciones las genere un modelo de IA por API, con
+el recomendador por reglas como respaldo. El PR #62 dejó solo las reglas. Faltaba elegir
+el modelo, y el equipo no tiene presupuesto para una API paga.
+
+**Qué se consideró.**
+
+| Opción | Costo | Por qué no |
+|---|---|---|
+| Claude (Anthropic) | centavos de dólar por llamada | Hay que cargar crédito por adelantado |
+| Hugging Face Inference Providers | US$0,10 de crédito gratis al mes | Alcanza para probar, no para usar |
+| Modelo local con Ollama | gratis | Varios GB de descarga y lento en una laptop |
+| **Gemini Flash-Lite, capa gratuita** | **gratis** | ← elegida |
+
+**Decisión.** `gemini-3.5-flash-lite`, configurable con la variable `GEMINI_MODEL`. Se
+llama a `generateContent` de la API REST con salida estructurada en JSON, usando el
+`RestClient` que ya trae Spring: **no se agrega ninguna dependencia**. La llamada tiene
+un tiempo máximo de 10 segundos. Sin clave, o ante cualquier falla, responden las reglas.
+El campo `source` de la respuesta dice cuál de los dos respondió.
+
+**Lo que dicen los términos de la capa gratuita, y hay que saberlo:**
+
+- Google usa lo que se le envía para mejorar sus productos, y **personas pueden leerlo**.
+- Pide expresamente no enviar información sensible, confidencial o personal.
+- Hay que ser mayor de 18 años para usarla.
+
+**Cómo se respeta.** Al modelo solo le llegan montos agregados y nombres de categorías.
+No le llegan el correo, el nombre, las descripciones de los movimientos ni los nombres
+de las metas, que los escribe el usuario y pueden ser personales. Hay una prueba que lo
+verifica. Aun así, con esta capa **se usan solo datos de prueba**. Con usuarios reales
+habría que pasar a la capa paga, que tiene otros términos.
+
+**Límites de uso.** Google no publica una tabla fija para la capa gratuita: los límites
+de cada cuenta se ven en AI Studio. Si se agota la cuota el día de la demo, la API
+responde con error y el endpoint cae a las reglas. La demo no se rompe.
+
+**Riesgo asumido: instrucciones escondidas en los datos.** Los nombres de las categorías
+propias los escribe el usuario y viajan dentro del prompt. Alguien podría escribir una
+instrucción como nombre de categoría, pero solo afectaría a sus propios consejos. El
+prompt aclara que esos nombres son datos y no instrucciones, y la respuesta se valida:
+tienen que volver exactamente tres consejos en el JSON esperado.

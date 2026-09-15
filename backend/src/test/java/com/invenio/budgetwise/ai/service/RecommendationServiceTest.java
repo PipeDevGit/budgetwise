@@ -1,6 +1,7 @@
 package com.invenio.budgetwise.ai.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +33,8 @@ class RecommendationServiceTest {
         SavingsGoalRepository savingsGoalRepository = mock(SavingsGoalRepository.class);
         UserRepository userRepository = mock(UserRepository.class);
         RecommendationService service = new RecommendationService(
-                transactionRepository, savingsGoalRepository, userRepository, new RuleBasedRecommender());
+                transactionRepository, savingsGoalRepository, userRepository, new RuleBasedRecommender(),
+                geminiSinClave());
 
         User ana = mock(User.class);
         when(ana.getId()).thenReturn(1L);
@@ -60,6 +62,47 @@ class RecommendationServiceTest {
         assertThat(respuesta.recommendations().get(1)).contains("Viaje");
         // El ingreso de "Otros" no cuenta como gasto: gastado 55 000 de 400 000 es el 14%.
         assertThat(respuesta.recommendations().get(2)).contains("14%");
+    }
+
+    @Test
+    void conGeminiConfiguradoRespondeConLosConsejosDelModelo() {
+        GeminiRecommender gemini = mock(GeminiRecommender.class);
+        when(gemini.estaConfigurado()).thenReturn(true);
+        when(gemini.recomendar(any())).thenReturn(List.of("Uno", "Dos", "Tres"));
+
+        RecommendationResponse respuesta = servicioCon(gemini).recomendar("ana@example.com", LocalDate.of(2026, 9, 13));
+
+        assertThat(respuesta.source()).isEqualTo("gemini");
+        assertThat(respuesta.recommendations()).containsExactly("Uno", "Dos", "Tres");
+    }
+
+    @Test
+    void siGeminiFallaRespondeConLasReglas() {
+        // D-03: la demo no puede depender de la red ni de la cuota gratuita.
+        GeminiRecommender gemini = mock(GeminiRecommender.class);
+        when(gemini.estaConfigurado()).thenReturn(true);
+        when(gemini.recomendar(any())).thenThrow(new IllegalStateException("cuota agotada"));
+
+        RecommendationResponse respuesta = servicioCon(gemini).recomendar("ana@example.com", LocalDate.of(2026, 9, 13));
+
+        assertThat(respuesta.source()).isEqualTo("reglas");
+        assertThat(respuesta.recommendations()).hasSize(3);
+    }
+
+    /** Servicio con repositorios vacios: el resumen no importa, solo de donde salen los consejos. */
+    private static RecommendationService servicioCon(GeminiRecommender gemini) {
+        UserRepository userRepository = mock(UserRepository.class);
+        User ana = mock(User.class);
+        when(ana.getId()).thenReturn(1L);
+        when(userRepository.findByEmail("ana@example.com")).thenReturn(Optional.of(ana));
+        return new RecommendationService(mock(TransactionRepository.class), mock(SavingsGoalRepository.class),
+                userRepository, new RuleBasedRecommender(), gemini);
+    }
+
+    private static GeminiRecommender geminiSinClave() {
+        GeminiRecommender gemini = mock(GeminiRecommender.class);
+        when(gemini.estaConfigurado()).thenReturn(false);
+        return gemini;
     }
 
     private static Transaction movimiento(String monto, TransactionType tipo, Category categoria) {
