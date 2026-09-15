@@ -23,8 +23,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
-    /** Filtro por categoria de la issue #8. Sigue filtrando por usuario. */
-    List<Transaction> findByUserIdAndCategoryIdOrderByDateDesc(Long userId, Long categoryId);
+    /**
+     * Filtro por categoria de la issue #8. Sigue filtrando por usuario, y
+     * desempata por id igual que el listado completo: si no, al filtrar
+     * volverian a "saltar" los movimientos del mismo dia.
+     */
+    List<Transaction> findByUserIdAndCategoryIdOrderByDateDescIdDesc(Long userId, Long categoryId);
 
     List<Transaction> findByUserIdAndDateBetween(Long userId, LocalDate desde, LocalDate hasta);
 }
