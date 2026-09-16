@@ -62,7 +62,7 @@ sprint.
 |---|---|---|---|
 | 1 | Cada uno lee los "Cómo explicarlo" de **sus** PRs y de los que **revisó**, y las partes de la exposición se reparten según eso | Los tres | En el ensayo del 22, cada uno explica su parte sin leer |
 | 2 | Antes de publicar una afirmación sobre el repositorio o sobre un acuerdo, se enlaza la evidencia | Felipe | Ninguna corrección de este tipo hasta el 23 |
-| 3 | Ensayo completo con la demo real, siguiendo `guion-demo.md` | Los tres | Ensayo hecho el lunes 22, con el tiempo medido |
+| 3 | Ensayo completo con la demo real, siguiendo `guion-demo.md` | Los tres | Ensayo hecho a más tardar el martes 22, con el tiempo medido |
 
 ## Pendiente de cada uno
 
