@@ -8,7 +8,8 @@ comentarios se ven.
 
 - `sprint-N-planning.md` — qué se comprometió el equipo y con cuántos puntos
 - `sprint-N-review.md` — qué se demostró, qué aceptó el Product Owner y qué se rechazó
-- `sprint-N-retro.md` — qué salió bien, qué no, y **la única acción** para el sprint siguiente
+- `sprint-N-retrospectiva.md` — qué salió bien, qué no, y las acciones para el sprint siguiente
+- `guion-demo.md` — cómo preparar y recorrer la demo de la entrega
 - `capturas/` — el tablero al inicio y al final de cada sprint
 
 ## Dailies

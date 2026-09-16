@@ -10,8 +10,8 @@ acá, no está acordado.
 | Sprint | Días | Qué tiene que estar listo |
 |---|---|---|
 | **Sprint 1** | 8 al 13 sep | Registrarse, iniciar sesión, y que todo levante con Docker |
-| **Sprint 2** | 14 al 19 sep | Las siete funcionalidades + infra + arranque de filminas |
-| **Sprint 3** | 20 al 22 sep | IA, prueba E2E, cierre de filminas y ensayo |
+| **Sprint 2** | 14 al 19 sep | Las ocho funcionalidades + infra + arranque de filminas |
+| **Sprint 3** | 20 al 22 sep | Cierre de filminas y ensayo (la IA y la E2E se adelantaron al Sprint 2) |
 | **Entrega** | 23 sep | Presentación oral, máximo 5 filminas |
 
 ## El daily

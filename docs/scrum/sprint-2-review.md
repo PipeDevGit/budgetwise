@@ -93,9 +93,13 @@ no lo que tenía asignado. Todo PR tiene una sección "Cómo explicarlo" para es
 | #70 · #75 | **La API corría en UTC:** después de las 6 p.m. una meta con fecha de hoy daba 400 | Pablo, creando una meta a las 20:42 |
 | — · #76 | **Gemini aconsejaba apartar 300 000 en un mes** para una meta que necesita 45 000 por mes | Verificación integral del 16 |
 | — · #77 | **Con un token viejo, la app quedaba "adentro"** con saldo 0 y un 403 en cada sección | Verificación integral del 16 |
+| — · #79 | **Gemini proponía como tope lo ya gastado** ("un tope de 62 000 en Comida") cuando Comida ya tenía un presupuesto de 50 000 excedido | Corrida con clave real del #76 |
+| — · #80 | **El README mandaba a poner el `.env` en la raíz**, donde Compose no lo lee | Revisión del README del 16 |
+| #20 · #83 | **El README de Kubernetes daba una URL que no responde** con kind (`localhost:30080`) | Correr los manifiestos en kind |
+| #82 · #83 | **El guion de la demo dejaba todos los números mal** si se usaba la cuenta del ensayo | El ensayo del 16 |
 
-**El mismo patrón que en el Sprint 1: los cinco los encontró alguien usando la aplicación
-corriendo.** Con las pruebas en verde, ninguno se veía. El del token pasa en cualquier
+**El mismo patrón que en el Sprint 1: todos los encontró alguien usando la aplicación,
+corriendo los comandos o ensayando.** Con las pruebas en verde, ninguno se veía. El del token pasa en cualquier
 navegador que haya abierto la app antes del #71, así que era probable verlo en la demo.
 
 ## Aceptado por el Product Owner
@@ -120,7 +124,8 @@ navegador que haya abierto la app antes del #71, así que era probable verlo en 
 
 ## Lo que se lleva el cierre
 
-- **#21 — filminas.** La filmina 5 ya tiene cifras definitivas: 134 pruebas y 12 de 13
-  issues del sprint. Falta el ensayo, **a más tardar el martes 22**.
-- **#76 y #77** esperan revisión. Si entran, las pruebas pasan a **141** (91 + 49 + 1).
+- **#21 — filminas.** Las cifras de la filmina 5, en `main` al 16 después del #79:
+  **145 pruebas** (95 backend + 49 frontend + 1 end-to-end) y 12 de 13 issues del
+  sprint. Falta el ensayo, **a más tardar el martes 22**.
+- **Los #76, #77, #79 y #80 ya entraron.** Queda el #83 (Kubernetes en kind y el ensayo).
 - **Cómo preparar la demo:** `docs/scrum/guion-demo.md`.
