@@ -77,7 +77,7 @@ Respetá esta estructura literalmente.
   exclusiones explícitas: integración bancaria, reportes fiscales o contables,
   múltiples monedas, multiusuario dentro de una cuenta, automatización de inversiones.
   No las implementes ni las "dejes preparadas".
-- **No commitear secretos.** Ni `.env`, ni API keys, ni la `ANTHROPIC_API_KEY`, ni
+- **No commitear secretos.** Ni `.env`, ni API keys, ni la `GEMINI_API_KEY`, ni
   credenciales de la base de datos fuera de variables de entorno.
 - **No borrar ni reescribir pruebas para que el build pase.** Si una prueba falla,
   el problema es el código.

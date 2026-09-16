@@ -93,34 +93,45 @@ no lo que tenía asignado. Todo PR tiene una sección "Cómo explicarlo" para es
 | #70 · #75 | **La API corría en UTC:** después de las 6 p.m. una meta con fecha de hoy daba 400 | Pablo, creando una meta a las 20:42 |
 | — · #76 | **Gemini aconsejaba apartar 300 000 en un mes** para una meta que necesita 45 000 por mes | Verificación integral del 16 |
 | — · #77 | **Con un token viejo, la app quedaba "adentro"** con saldo 0 y un 403 en cada sección | Verificación integral del 16 |
+| — · #79 | **Gemini proponía como tope lo ya gastado** ("un tope de 62 000 en Comida") cuando Comida ya tenía un presupuesto de 50 000 excedido | Corrida con clave real del #76 |
+| — · #80 | **El README mandaba a poner el `.env` en la raíz**, donde Compose no lo lee | Revisión del README del 16 |
+| #20 · #83 | **El README de Kubernetes daba una URL que no responde** con kind (`localhost:30080`) | Correr los manifiestos en kind |
+| #82 · #83 | **El guion de la demo dejaba todos los números mal** si se usaba la cuenta del ensayo | El ensayo del 16 |
 
-**El mismo patrón que en el Sprint 1: los cinco los encontró alguien usando la aplicación
-corriendo.** Con las pruebas en verde, ninguno se veía. El del token pasa en cualquier
+**El mismo patrón que en el Sprint 1: todos los encontró alguien usando la aplicación,
+corriendo los comandos o ensayando.** Con las pruebas en verde, ninguno se veía. El del token pasa en cualquier
 navegador que haya abierto la app antes del #71, así que era probable verlo en la demo.
 
 ## Aceptado por el Product Owner
 
-**Pendiente — lo llena @NieblaVidente.**
+**Aceptadas por @NieblaVidente el 2026-09-16.** Cada una se comprobó contra `main`, en el
+navegador o en el código, no de memoria.
 
 | Issue | ¿Aceptada? | Comentario |
 |---|---|---|
-| #7 | | |
-| #8 | | |
-| #10 | | |
-| #11 | | |
-| #12 | | |
-| #13 | | |
-| #14 | | |
-| #15 | | |
-| #19 | | |
-| #20 | | |
-| #45 | | |
-| #46 | | |
-| #16 · #17 · #18 (adelantadas del Sprint 3) | | |
+| #7 CRUD de ingresos y gastos | **Sí** | Los cinco métodos filtran por usuario y una transacción ajena da 404. Revisado en el #53 y visto corriendo |
+| #8 Categorías | **Sí** | Categoría propia "Mascotas" creada desde la pantalla y filtro por categoría, que lo resuelve la API |
+| #10 Pantalla de transacciones | **Sí** | Alta de un ingreso y un gasto, lista con su categoría y saldo actualizado sin recargar |
+| #11 Panel de control | **Sí** | Saldo, gasto del mes y gráfico por categoría, verificados en vivo. Lo escribió Felipe (#63) |
+| #12 Metas de ahorro | **Sí** | Barra de progreso; con 299 999 de 300 000 muestra 99 % y no "cumplida" |
+| #13 Alertas por sobrepaso | **Sí** | Gastar exactamente el presupuesto no alerta; un céntimo más sí |
+| #14 Pruebas unitarias | **Sí** | 95 pruebas de backend sobre `service/`, muy por encima de las 6 a 8 que pedía el criterio |
+| #15 Cálculo del saldo | **Sí** | `GET /api/balance` devuelve lo mismo que calcula la pantalla: 449 499,49 en la cuenta de prueba |
+| #19 Observabilidad | **Sí** | `/actuator/prometheus` y logs JSON con `request_id`, con capturas en el repositorio |
+| #20 Kubernetes | **Sí** | Manifiestos de Deployment y Service como exploración, que es lo que pide el enunciado |
+| #45 Node 22 | **Sí** | CI, Dockerfile y documentación en 22; el requisito local quedó en "22 o superior" |
+| #46 Errores con cuerpo JSON | **Sí** | Los mensajes de la API llegan a la pantalla; sin esto se veía "La API respondió 400" |
+| #16 · #17 · #18 (adelantadas del Sprint 3) | **Sí** | Gemini con respaldo por reglas y la fuente a la vista, recomendaciones en el panel, y la E2E en `1 passed` |
+
+**Una observación que no bloquea la aceptación:** varias de estas historias las escribió
+quien no las tenía asignada (ver "Quién hizo qué"). Acepto el resultado, porque funciona y
+está probado. Lo que hay que resolver antes del 23 es el reparto de la exposición, que es
+la acción 1 de la retrospectiva: cada uno explica lo que escribió o revisó.
 
 ## Lo que se lleva el cierre
 
-- **#21 — filminas.** La filmina 5 ya tiene cifras definitivas: 134 pruebas y 12 de 13
-  issues del sprint. Falta el ensayo, **a más tardar el martes 22**.
-- **#76 y #77** esperan revisión. Si entran, las pruebas pasan a **141** (91 + 49 + 1).
+- **#21 — filminas.** Las cifras de la filmina 5, en `main` al 16 después del #79:
+  **145 pruebas** (95 backend + 49 frontend + 1 end-to-end) y 12 de 13 issues del
+  sprint. Falta el ensayo, **a más tardar el martes 22**.
+- **Los #76, #77, #79 y #80 ya entraron.** Queda el #83 (Kubernetes en kind y el ensayo).
 - **Cómo preparar la demo:** `docs/scrum/guion-demo.md`.
