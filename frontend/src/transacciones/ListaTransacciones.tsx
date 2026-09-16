@@ -1,9 +1,15 @@
 import type { Transaccion } from '../api/client'
 import { formatearMonto } from './montos'
 
-export function ListaTransacciones({ transacciones }: { transacciones: Transaccion[] }) {
+type Props = {
+  transacciones: Transaccion[]
+  /** Lo que se muestra si no hay nada: no es lo mismo "no hay movimientos" que "no hay en esta categoria". */
+  vacio: string
+}
+
+export function ListaTransacciones({ transacciones, vacio }: Props) {
   if (transacciones.length === 0) {
-    return <p>Todavia no hay movimientos. Agrega el primero con el formulario de arriba.</p>
+    return <p>{vacio}</p>
   }
 
   return (
