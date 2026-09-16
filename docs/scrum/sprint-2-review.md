@@ -121,6 +121,6 @@ navegador que haya abierto la app antes del #71, así que era probable verlo en 
 ## Lo que se lleva el cierre
 
 - **#21 — filminas.** La filmina 5 ya tiene cifras definitivas: 134 pruebas y 12 de 13
-  issues del sprint. Falta el ensayo, **antes del lunes 22**.
+  issues del sprint. Falta el ensayo, **a más tardar el martes 22**.
 - **#76 y #77** esperan revisión. Si entran, las pruebas pasan a **141** (91 + 49 + 1).
 - **Cómo preparar la demo:** `docs/scrum/guion-demo.md`.
