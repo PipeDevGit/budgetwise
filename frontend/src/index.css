@@ -79,6 +79,11 @@ form button[type='submit']:disabled {
   }
 }
 
+/* Aviso de sesion vencida sobre el login: informa, no es un error del usuario. */
+.aviso {
+  font-weight: 600;
+}
+
 /* Pantalla de transacciones (issue #10). */
 
 .cabecera {

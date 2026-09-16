@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { guardarToken } from '../auth/session'
+import { alVencerLaSesion, guardarToken, leerToken } from '../auth/session'
 import {
   actualizarAhorro,
   crearCategoria,
@@ -133,6 +133,57 @@ describe('pedir()', () => {
 
   // El DELETE de /api/transactions (issue #7) responde 204 sin cuerpo:
   // pedir() no puede llamar a json() ahi porque no hay nada que parsear.
+  // Visto el 2026-09-16: con un token viejo en el navegador, la app quedaba "adentro"
+  // con saldo 0 y un 403 en cada seccion, sin volver al login.
+  it('con sesion abierta, un 403 borra el token y avisa que la sesion vencio', async () => {
+    guardarToken('token-viejo')
+    simularFetch(respuesta(403))
+    const oyente = vi.fn()
+    const desuscribir = alVencerLaSesion(oyente)
+
+    await expect(obtenerSaldo()).rejects.toThrow('Tu sesion vencio')
+
+    expect(leerToken()).toBeNull()
+    expect(oyente).toHaveBeenCalledOnce()
+    desuscribir()
+  })
+
+  it('con sesion abierta, un 401 tambien cierra la sesion', async () => {
+    guardarToken('token-de-un-usuario-borrado')
+    simularFetch(respuesta(401))
+    const oyente = vi.fn()
+    const desuscribir = alVencerLaSesion(oyente)
+
+    await expect(listarTransacciones()).rejects.toThrow('Tu sesion vencio')
+
+    expect(oyente).toHaveBeenCalledOnce()
+    desuscribir()
+  })
+
+  it('sin sesion, un 401 del login es una contrasena equivocada y no una sesion vencida', async () => {
+    simularFetch(respuesta(401, { message: 'Email o contrasena incorrectos' }))
+    const oyente = vi.fn()
+    const desuscribir = alVencerLaSesion(oyente)
+
+    await expect(
+      iniciarSesion({ email: 'ana@invenio.ac.cr', password: 'otra' }),
+    ).rejects.toThrow('Email o contrasena incorrectos')
+
+    expect(oyente).not.toHaveBeenCalled()
+    desuscribir()
+  })
+
+  it('un oyente desuscrito ya no recibe el aviso', async () => {
+    guardarToken('token-viejo')
+    simularFetch(respuesta(403))
+    const oyente = vi.fn()
+    alVencerLaSesion(oyente)()
+
+    await expect(obtenerSaldo()).rejects.toThrow()
+
+    expect(oyente).not.toHaveBeenCalled()
+  })
+
   it('no intenta leer el cuerpo cuando la respuesta es 204', async () => {
     simularFetch(respuesta(204))
 
