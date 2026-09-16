@@ -1,14 +1,19 @@
 package com.invenio.budgetwise.ai.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.invenio.budgetwise.ai.domain.ResumenFinanciero;
 import com.invenio.budgetwise.ai.dto.RecommendationResponse;
 import com.invenio.budgetwise.auth.domain.User;
 import com.invenio.budgetwise.auth.repository.UserRepository;
+import com.invenio.budgetwise.budget.domain.Budget;
 import com.invenio.budgetwise.budget.domain.SavingsGoal;
+import com.invenio.budgetwise.budget.repository.BudgetRepository;
 import com.invenio.budgetwise.budget.repository.SavingsGoalRepository;
 import com.invenio.budgetwise.category.domain.Category;
 import com.invenio.budgetwise.transaction.domain.Transaction;
@@ -19,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Prueba el armado del resumen: que tome el mes en curso y el anterior, que
@@ -33,8 +39,8 @@ class RecommendationServiceTest {
         SavingsGoalRepository savingsGoalRepository = mock(SavingsGoalRepository.class);
         UserRepository userRepository = mock(UserRepository.class);
         RecommendationService service = new RecommendationService(
-                transactionRepository, savingsGoalRepository, userRepository, new RuleBasedRecommender(),
-                geminiSinClave());
+                transactionRepository, savingsGoalRepository, mock(BudgetRepository.class), userRepository,
+                new RuleBasedRecommender(), geminiSinClave());
 
         User ana = mock(User.class);
         when(ana.getId()).thenReturn(1L);
@@ -89,6 +95,36 @@ class RecommendationServiceTest {
         assertThat(respuesta.recommendations()).hasSize(3);
     }
 
+    @Test
+    void aGeminiLeLleganLosPresupuestosDelUsuarioYDelMes() {
+        UserRepository userRepository = mock(UserRepository.class);
+        BudgetRepository budgetRepository = mock(BudgetRepository.class);
+        User ana = mock(User.class);
+        when(ana.getId()).thenReturn(1L);
+        when(userRepository.findByEmail("ana@example.com")).thenReturn(Optional.of(ana));
+
+        Category comida = mock(Category.class);
+        when(comida.getName()).thenReturn("Comida");
+        Budget presupuesto = mock(Budget.class);
+        when(presupuesto.getCategory()).thenReturn(comida);
+        when(presupuesto.getMonthlyLimit()).thenReturn(new BigDecimal("50000"));
+        // Solo responde para este usuario y este mes: cualquier otra consulta devuelve vacio.
+        when(budgetRepository.findByUserIdAndPeriod(1L, "2026-09")).thenReturn(List.of(presupuesto));
+
+        GeminiRecommender gemini = mock(GeminiRecommender.class);
+        when(gemini.estaConfigurado()).thenReturn(true);
+        when(gemini.recomendar(any())).thenReturn(List.of("uno", "dos", "tres"));
+        RecommendationService service = new RecommendationService(mock(TransactionRepository.class),
+                mock(SavingsGoalRepository.class), budgetRepository, userRepository, new RuleBasedRecommender(),
+                gemini);
+
+        service.recomendar("ana@example.com", LocalDate.of(2026, 9, 16));
+
+        ArgumentCaptor<ResumenFinanciero> resumen = ArgumentCaptor.forClass(ResumenFinanciero.class);
+        verify(gemini).recomendar(resumen.capture());
+        assertThat(resumen.getValue().presupuestosDelMes()).containsExactly(entry("Comida", new BigDecimal("50000")));
+    }
+
     /** Servicio con repositorios vacios: el resumen no importa, solo de donde salen los consejos. */
     private static RecommendationService servicioCon(GeminiRecommender gemini) {
         UserRepository userRepository = mock(UserRepository.class);
@@ -96,7 +132,7 @@ class RecommendationServiceTest {
         when(ana.getId()).thenReturn(1L);
         when(userRepository.findByEmail("ana@example.com")).thenReturn(Optional.of(ana));
         return new RecommendationService(mock(TransactionRepository.class), mock(SavingsGoalRepository.class),
-                userRepository, new RuleBasedRecommender(), gemini);
+                mock(BudgetRepository.class), userRepository, new RuleBasedRecommender(), gemini);
     }
 
     private static GeminiRecommender geminiSinClave() {

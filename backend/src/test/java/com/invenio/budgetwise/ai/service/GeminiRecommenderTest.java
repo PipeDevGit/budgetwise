@@ -144,6 +144,44 @@ class GeminiRecommenderTest {
     }
 
     @Test
+    void losPresupuestosLleganConLimiteGastadoYSiSeExcedieron() {
+        // Caso de la corrida con clave real del 2026-09-16: sin los presupuestos, el modelo
+        // propuso "un tope de 62 000,00 en Comida", que es lo ya gastado, cuando Comida ya
+        // tenia un limite de 50 000 excedido.
+        ResumenFinanciero resumen = new ResumenFinanciero(
+                LocalDate.of(2026, 9, 16),
+                new BigDecimal("450000"),
+                new BigDecimal("120500"),
+                Map.of("Comida", new BigDecimal("62000"), "Ocio", new BigDecimal("25000")),
+                Map.of(),
+                List.of(),
+                Map.of("Ocio", new BigDecimal("40000"), "Comida", new BigDecimal("50000"),
+                        "Salud", new BigDecimal("20000")));
+
+        String presupuestos = GeminiRecommender.describirPresupuestos(resumen)
+                .replace(' ', ' ').replace(' ', ' ');
+
+        // Ordenados por nombre, para que el prompt sea el mismo en cada llamada.
+        assertThat(presupuestos).isEqualTo(
+                "Comida: limite 50 000,00, gastado 62 000,00, excedido por 12 000,00; "
+                        + "Ocio: limite 40 000,00, gastado 25 000,00, disponible 15 000,00; "
+                        + "Salud: limite 20 000,00, gastado 0,00, disponible 20 000,00");
+    }
+
+    @Test
+    void sinPresupuestosElPromptDiceNinguno() {
+        assertThat(GeminiRecommender.describirPresupuestos(RESUMEN_VACIO)).isEqualTo("ninguno");
+        assertThat(sinClave.construirPrompt(RESUMEN_VACIO)).contains("Presupuestos del mes: ninguno");
+    }
+
+    @Test
+    void elPromptPideNoInventarTopesParaCategoriasConPresupuesto() {
+        assertThat(sinClave.construirPrompt(RESUMEN_VACIO))
+                .contains("No proponer un tope para una categoria que ya tiene presupuesto")
+                .contains("Nunca proponer como tope lo que ya se gasto");
+    }
+
+    @Test
     void laPeticionPideLaRespuestaEnJson() {
         ResumenFinanciero vacio = new ResumenFinanciero(
                 LocalDate.of(2026, 9, 13), BigDecimal.ZERO, BigDecimal.ZERO, Map.of(), Map.of(), List.of());
