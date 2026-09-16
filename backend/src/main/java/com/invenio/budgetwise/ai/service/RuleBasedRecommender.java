@@ -5,6 +5,7 @@ import com.invenio.budgetwise.ai.domain.ResumenFinanciero.Meta;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -70,11 +71,7 @@ public class RuleBasedRecommender {
             return "La fecha limite de tu meta " + meta.nombre() + " ya paso. Ajusta la fecha o el monto "
                     + "para volver a proyectarla.";
         }
-        // Se cuenta el mes en curso: de septiembre a diciembre quedan cuatro meses para ahorrar.
-        long meses = ChronoUnit.MONTHS.between(YearMonth.from(resumen.hoy()), YearMonth.from(meta.fechaLimite())) + 1;
-        BigDecimal falta = meta.objetivo().subtract(meta.ahorrado());
-        // divide() con modo de redondeo explicito: sin el, una division no exacta lanza ArithmeticException.
-        BigDecimal necesarioPorMes = falta.divide(BigDecimal.valueOf(meses), 2, RoundingMode.UP);
+        BigDecimal necesarioPorMes = necesarioPorMes(meta, resumen.hoy());
         BigDecimal ahorroDelMes = resumen.ingresosDelMes().subtract(resumen.gastosDelMes());
         if (ahorroDelMes.compareTo(necesarioPorMes) >= 0) {
             return "Al ritmo de este mes llegas a tiempo a tu meta " + meta.nombre() + ": necesitas "
@@ -83,6 +80,19 @@ public class RuleBasedRecommender {
         return "Para llegar a tu meta " + meta.nombre() + " necesitas ahorrar " + monto(necesarioPorMes)
                 + " por mes, pero este mes vas ahorrando " + monto(ahorroDelMes.max(BigDecimal.ZERO))
                 + ". Al ritmo actual no llegas a tiempo.";
+    }
+
+    /**
+     * Cuanto hay que apartar por mes para llegar a la meta en fecha. Lo usan las reglas y
+     * GeminiRecommender: el modelo recibe este monto ya calculado, porque si se le pide la
+     * cuenta copia el objetivo total como si fuera lo de un mes.
+     */
+    static BigDecimal necesarioPorMes(Meta meta, LocalDate hoy) {
+        // Se cuenta el mes en curso: de septiembre a diciembre quedan cuatro meses para ahorrar.
+        long meses = ChronoUnit.MONTHS.between(YearMonth.from(hoy), YearMonth.from(meta.fechaLimite())) + 1;
+        BigDecimal falta = meta.objetivo().subtract(meta.ahorrado());
+        // divide() con modo de redondeo explicito: sin el, una division no exacta lanza ArithmeticException.
+        return falta.divide(BigDecimal.valueOf(meses), 2, RoundingMode.UP);
     }
 
     String proporcionGastada(ResumenFinanciero resumen) {

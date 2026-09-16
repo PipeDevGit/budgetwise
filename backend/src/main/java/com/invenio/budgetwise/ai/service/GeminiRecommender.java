@@ -7,6 +7,7 @@ import com.invenio.budgetwise.ai.domain.ResumenFinanciero;
 import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,9 +110,7 @@ public class GeminiRecommender {
         String metas = resumen.metas().isEmpty()
                 ? "ninguna"
                 : resumen.metas().stream()
-                        .map(meta -> "objetivo " + RuleBasedRecommender.monto(meta.objetivo())
-                                + ", ahorrado " + RuleBasedRecommender.monto(meta.ahorrado())
-                                + ", fecha limite " + meta.fechaLimite())
+                        .map(meta -> describirMeta(meta, resumen.hoy()))
                         .collect(Collectors.joining("; "));
         return """
                 Sos un asistente de finanzas personales dentro de una aplicacion de presupuesto.
@@ -122,6 +121,7 @@ public class GeminiRecommender {
                   recortar una categoria o apartar un monto para una meta. Describir sus numeros no es un consejo.
                 - Tener una o dos oraciones, en espanol, tratando al usuario de vos.
                 - Mencionar un monto solo si ayuda a la accion, copiandolo exactamente como aparece abajo.
+                  No hagas cuentas: para una meta, lo que hay que apartar por mes ya viene calculado.
 
                 No repitas el resumen: el usuario ya ve sus ingresos y gastos en la aplicacion.
                 Usa solo los datos del resumen; no inventes montos, categorias ni tendencias.
@@ -143,6 +143,21 @@ public class GeminiRecommender {
                 porCategoria(resumen.gastoPorCategoriaMesActual()),
                 porCategoria(resumen.gastoPorCategoriaMesAnterior()),
                 metas);
+    }
+
+    static String describirMeta(ResumenFinanciero.Meta meta, LocalDate hoy) {
+        String base = "objetivo " + RuleBasedRecommender.monto(meta.objetivo())
+                + ", ahorrado " + RuleBasedRecommender.monto(meta.ahorrado())
+                + ", fecha limite " + meta.fechaLimite();
+        if (meta.ahorrado().compareTo(meta.objetivo()) >= 0) {
+            return base + ", ya alcanzada";
+        }
+        if (meta.fechaLimite() == null || meta.fechaLimite().isBefore(hoy)) {
+            return base + ", fecha limite vencida";
+        }
+        return base + ", falta " + RuleBasedRecommender.monto(meta.objetivo().subtract(meta.ahorrado()))
+                + ", hay que apartar " + RuleBasedRecommender.monto(RuleBasedRecommender.necesarioPorMes(meta, hoy))
+                + " por mes";
     }
 
     private static String porCategoria(Map<String, BigDecimal> gastos) {
