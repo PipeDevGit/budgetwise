@@ -18,6 +18,9 @@ ocho funcionalidades se vean en pocos minutos y sin sorpresas. Complementa las f
 - [ ] Cargar la cuenta de demo y **anotar el correo que imprime**:
       `bash infra/demo/cargar-datos-demo.sh`
 - [ ] Recorrer el guion de abajo una vez, entero, con esa cuenta
+- [ ] **Volver a correr el script y usar la cuenta nueva el 23.** El recorrido cambia los
+      datos (el paso 4 agrega un gasto y el 8 actualiza la meta): con la misma cuenta, el
+      saldo ya diría 717 500 y la meta 60 %, y ningún número del guion coincidiría
 - [ ] Correr la E2E: `cd e2e && npx playwright test` → `1 passed`
 
 ## Una hora antes
@@ -44,6 +47,11 @@ no coincide, algo está mal, y conviene saberlo antes.
 | 6 | Panel | Cambiar de sección | Saldo, gasto del mes y gráfico por categoría | Panel de control |
 | 7 | Panel | Bajar a Recomendaciones | Tres consejos y **de dónde salieron** (IA o reglas) | IA |
 | 8 | Metas | Cambiar de sección | Viaje al **40 %**; actualizar el ahorro a 180 000 → **60 %** | Metas de ahorro |
+
+**Después del paso 4, el panel y las recomendaciones cambian:** gasto del mes 130 500,00,
+"Tu gasto en Ocio subió 35 000,00", y tras el paso 8 la meta pide 30 000,00 por mes en
+vez de 45 000,00, si se vuelve al panel. Esos textos son los de las reglas, verificados en
+el ensayo del 16; con Gemini la redacción cambia en cada llamada.
 
 **Si preguntan por la calidad:** 134 pruebas automatizadas (88 backend, 45 frontend, 1
 end-to-end). La E2E hace sola, en un navegador, los pasos 1, 2 y 4 con una cuenta nueva.

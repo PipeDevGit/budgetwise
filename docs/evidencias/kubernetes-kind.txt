@@ -1,0 +1,70 @@
+# Kubernetes corrido en kind — 2026-09-16
+# kind v0.33.0 · kubectl v1.36.1 · servidor v1.37.0
+
+$ kubectl get nodes
+NAME                       STATUS   ROLES           AGE     VERSION
+budgetwise-control-plane   Ready    control-plane   5m23s   v1.37.0
+
+$ kubectl get deploy,statefulset,svc,configmap,secret
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/budgetwise-api   2/2     2            2           2m27s
+
+NAME                             READY   AGE
+statefulset.apps/budgetwise-db   1/1     2m27s
+
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/budgetwise-api   NodePort    10.96.122.250   <none>        8080:30080/TCP   2m27s
+service/budgetwise-db    ClusterIP   None            <none>        5432/TCP         2m27s
+service/kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP          5m20s
+
+NAME                          DATA   AGE
+configmap/budgetwise-config   4      2m27s
+
+NAME                        TYPE     DATA   AGE
+secret/budgetwise-secrets   Opaque   2      2m27s
+
+$ kubectl get pods -o wide
+NAME                              READY   STATUS    RESTARTS       AGE     IP           NODE                       NOMINATED NODE   READINESS GATES
+budgetwise-api-5d9dddd6db-lbf8n   1/1     Running   2 (113s ago)   2m27s   10.244.0.5   budgetwise-control-plane   <none>           <none>
+budgetwise-api-5d9dddd6db-pkxtr   1/1     Running   0              39s     10.244.0.9   budgetwise-control-plane   <none>           <none>
+budgetwise-db-0                   1/1     Running   0              2m27s   10.244.0.8   budgetwise-control-plane   <none>           <none>
+
+$ kubectl describe deployment budgetwise-api  (extracto)
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+    Image:      budgetwise-api:local
+    Limits:
+      cpu:     1
+      memory:  1Gi
+    Requests:
+      cpu:      250m
+      memory:   512Mi
+    Liveness:   http-get http://:8080/health delay=60s timeout=1s period=15s #success=1 #failure=3
+    Readiness:  http-get http://:8080/health delay=10s timeout=1s period=5s #success=1 #failure=12
+    Environment Variables from:
+
+$ kubectl port-forward service/budgetwise-api 18080:8080 &
+$ curl localhost:18080/health
+{"status":"ok","application":"budgetwise"}
+
+# El primer port-forward se corto al borrar la replica a la que estaba conectado:
+# con un Service, port-forward elige UN pod. Se relanzo y respondio lo de arriba.
+
+# Recorrido real contra la API del cluster (via port-forward):
+#   POST /api/auth/register -> 201
+#   POST /api/transactions  -> 201
+#   GET  /api/balance       -> {"totalIncome":0,"totalExpenses":1500.00,"balance":-1500.00}
+
+# Autorecuperacion: kubectl delete pod budgetwise-api-5d9dddd6db-6vdvz
+#   el Deployment creo budgetwise-api-5d9dddd6db-pkxtr y volvio a 2/2 en 19 s.
+
+# Los 2 reinicios de cada replica al aplicar: la API arranco antes de que Postgres
+# aceptara conexiones (BeanCreationException en entityManagerFactory, exit 1) y
+# Kubernetes la reinicio hasta que la base estuvo lista. Postgres arranco 17:33:45Z.
+
+$ kubectl exec deploy/budgetwise-api -- date
+Wed Sep 16 11:35:48 CST 2026
+
+$ kubectl logs deploy/budgetwise-api --tail=2
+Found 2 pods, using pod/budgetwise-api-5d9dddd6db-lbf8n
+{"@timestamp":"2026-09-16T11:34:27.322407329-06:00","@version":"1","message":"Initializing Servlet 'dispatcherServlet'","logger_name":"org.springframework.web.servlet.DispatcherServlet","thread_name":"http-nio-8080-exec-1","level":"INFO","level_value":20000}
+{"@timestamp":"2026-09-16T11:34:27.323604712-06:00","@version":"1","message":"Completed initialization in 1 ms","logger_name":"org.springframework.web.servlet.DispatcherServlet","thread_name":"http-nio-8080-exec-1","level":"INFO","level_value":20000}
