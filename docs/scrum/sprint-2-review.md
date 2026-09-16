@@ -104,23 +104,29 @@ navegador que haya abierto la app antes del #71, así que era probable verlo en 
 
 ## Aceptado por el Product Owner
 
-**Pendiente — lo llena @NieblaVidente.**
+**Aceptadas por @NieblaVidente el 2026-09-16.** Cada una se comprobó contra `main`, en el
+navegador o en el código, no de memoria.
 
 | Issue | ¿Aceptada? | Comentario |
 |---|---|---|
-| #7 | | |
-| #8 | | |
-| #10 | | |
-| #11 | | |
-| #12 | | |
-| #13 | | |
-| #14 | | |
-| #15 | | |
-| #19 | | |
-| #20 | | |
-| #45 | | |
-| #46 | | |
-| #16 · #17 · #18 (adelantadas del Sprint 3) | | |
+| #7 CRUD de ingresos y gastos | **Sí** | Los cinco métodos filtran por usuario y una transacción ajena da 404. Revisado en el #53 y visto corriendo |
+| #8 Categorías | **Sí** | Categoría propia "Mascotas" creada desde la pantalla y filtro por categoría, que lo resuelve la API |
+| #10 Pantalla de transacciones | **Sí** | Alta de un ingreso y un gasto, lista con su categoría y saldo actualizado sin recargar |
+| #11 Panel de control | **Sí** | Saldo, gasto del mes y gráfico por categoría, verificados en vivo. Lo escribió Felipe (#63) |
+| #12 Metas de ahorro | **Sí** | Barra de progreso; con 299 999 de 300 000 muestra 99 % y no "cumplida" |
+| #13 Alertas por sobrepaso | **Sí** | Gastar exactamente el presupuesto no alerta; un céntimo más sí |
+| #14 Pruebas unitarias | **Sí** | 95 pruebas de backend sobre `service/`, muy por encima de las 6 a 8 que pedía el criterio |
+| #15 Cálculo del saldo | **Sí** | `GET /api/balance` devuelve lo mismo que calcula la pantalla: 449 499,49 en la cuenta de prueba |
+| #19 Observabilidad | **Sí** | `/actuator/prometheus` y logs JSON con `request_id`, con capturas en el repositorio |
+| #20 Kubernetes | **Sí** | Manifiestos de Deployment y Service como exploración, que es lo que pide el enunciado |
+| #45 Node 22 | **Sí** | CI, Dockerfile y documentación en 22; el requisito local quedó en "22 o superior" |
+| #46 Errores con cuerpo JSON | **Sí** | Los mensajes de la API llegan a la pantalla; sin esto se veía "La API respondió 400" |
+| #16 · #17 · #18 (adelantadas del Sprint 3) | **Sí** | Gemini con respaldo por reglas y la fuente a la vista, recomendaciones en el panel, y la E2E en `1 passed` |
+
+**Una observación que no bloquea la aceptación:** varias de estas historias las escribió
+quien no las tenía asignada (ver "Quién hizo qué"). Acepto el resultado, porque funciona y
+está probado. Lo que hay que resolver antes del 23 es el reparto de la exposición, que es
+la acción 1 de la retrospectiva: cada uno explica lo que escribió o revisó.
 
 ## Lo que se lleva el cierre
 

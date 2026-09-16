@@ -68,6 +68,37 @@ sprint.
 
 **@NieblaVidente:**
 
+**Qué salió bien, desde el lado del producto:**
+
+1. **Escribir los contratos antes de programar funcionó.** En la #12 y la #13 dejé por
+   escrito qué necesitaba el frontend antes de que existiera la API. Cuando llegó, las
+   pantallas conectaron sin sorpresas. Es lo contrario de lo que pasó en el PR #40, donde
+   programé contra `/auth` y la API vivía en `/api/auth`.
+2. **Probar la aplicación corriendo encontró lo que las pruebas no veían.** La zona
+   horaria (#70) apareció creando una meta a las 20:42, no leyendo código. Lo mismo la
+   alerta con el gasto de un céntimo.
+3. **Las revisiones sirvieron de verdad.** Señalar el 204 del DELETE, el orden inestable
+   de la lista y las dos frases equivocadas de las filminas evitó cuatro problemas en la
+   demo.
+
+**Qué no salió bien, y me toca a mí:**
+
+1. **Mergeé el #69 y el #68 contra la rama de otro PR y no contra `main`.** No se perdió
+   nada, pero dejó la #12 y la #13 abiertas cuando parecían cerradas, y obligó a rehacer
+   la descripción del #67. Aprendido: mirar contra qué rama apunta el PR antes de apretar
+   "Merge", sobre todo con PRs apilados.
+2. **Trabajé con PRs apilados de tres niveles.** Fue cómodo para escribir, caro para
+   revisar y para mergear: tres conflictos con `main` en dos días. Con el equipo trabajando
+   rápido sobre los mismos archivos, conviene un PR por issue contra `main`, aunque haya
+   que esperar.
+3. **Aprobé PRs sin haberlos leído entero.** El #76, el #77 y el #78 los aprobé antes de
+   revisarlos a fondo; al leerlos después no encontré nada que los frenara, pero pudo
+   haber salido distinto. La aprobación es lo que sostiene la evaluación individual.
+
+**Lo que me llevo para el cierre:** de la filmina 5 puedo explicar cada número porque los
+medí yo; de la #11 y de la parte de IA, no escribí el código, así que en el ensayo del 22
+tengo que decidir con Felipe quién explica cada cosa.
+
 **@yariel3199-gif:**
 
 **@PipeDevGit:**
