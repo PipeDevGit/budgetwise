@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { listarTransacciones, obtenerSaldo, type Saldo, type Transaccion } from '../api/client'
 import { formatearMonto } from '../transacciones/montos'
 import { GraficoGastosPorCategoria } from './GraficoGastosPorCategoria'
+import { Recomendaciones } from './Recomendaciones'
 import { gastoDelMes, gastoPorCategoria, mesDe } from './resumen'
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
 
 /**
  * Panel de control financiero (issue #11): saldo actual, gasto del mes y el
- * grafico de gastos por categoria.
+ * grafico de gastos por categoria. Abajo, las recomendaciones del mes (#17).
  *
  * El saldo viene del servidor (GET /api/balance, issue #15), como anticipaba
  * el comentario de montos.ts. El gasto del mes y el grafico se calculan sobre
@@ -96,6 +97,9 @@ export function PanelControl({ onCerrarSesion }: Props) {
           )}
         </>
       )}
+
+      {/* Fuera del bloque de arriba: se ven aunque falle la carga de movimientos. */}
+      <Recomendaciones />
     </section>
   )
 }

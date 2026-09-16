@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LoginForm } from './auth/LoginForm'
 import { RegisterForm } from './auth/RegisterForm'
 import { borrarToken, guardarToken, leerToken } from './auth/session'
+import { MetasDeAhorro } from './metas/MetasDeAhorro'
 import { PanelControl } from './panel/PanelControl'
 import { PantallaTransacciones } from './transacciones/PantallaTransacciones'
 
@@ -11,7 +12,7 @@ type Vista = 'login' | 'registro'
  * Secciones de la sesion abierta. Arranca en transacciones: es donde se cargan
  * los datos que el panel resume, y es lo que espera la prueba E2E de la #18.
  */
-type Seccion = 'transacciones' | 'panel'
+type Seccion = 'transacciones' | 'panel' | 'metas'
 
 function App() {
   // Leer el token al arrancar es lo que hace que la sesion sobreviva a
@@ -47,12 +48,13 @@ function App() {
           <button type="button" aria-pressed={seccion === 'panel'} onClick={() => setSeccion('panel')}>
             Panel
           </button>
+          <button type="button" aria-pressed={seccion === 'metas'} onClick={() => setSeccion('metas')}>
+            Metas
+          </button>
         </nav>
-        {seccion === 'panel' ? (
-          <PanelControl onCerrarSesion={cerrarSesion} />
-        ) : (
-          <PantallaTransacciones onCerrarSesion={cerrarSesion} />
-        )}
+        {seccion === 'transacciones' && <PantallaTransacciones onCerrarSesion={cerrarSesion} />}
+        {seccion === 'panel' && <PanelControl onCerrarSesion={cerrarSesion} />}
+        {seccion === 'metas' && <MetasDeAhorro onCerrarSesion={cerrarSesion} />}
       </>
     )
   } else if (vista === 'login') {

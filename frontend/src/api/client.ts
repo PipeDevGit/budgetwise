@@ -38,7 +38,7 @@ export type NuevaTransaccion = {
   description: string | null
 }
 
-/** Contrato pedido a @yariel3199-gif en la issue #8; todavia no existe. */
+/** Lo que devuelve GET /api/categories (issue #8, PR #58). */
 export type Categoria = {
   id: number
   name: string
@@ -120,8 +120,14 @@ export function iniciarSesion(datos: Credenciales): Promise<RespuestaAuth> {
   })
 }
 
-export function listarTransacciones(): Promise<Transaccion[]> {
-  return pedir<Transaccion[]>('/api/transactions')
+/**
+ * Sin categoria trae todos los movimientos. Con categoria usa el filtro que
+ * ya hace la API (?categoryId=, PR #58), en vez de repetirlo en el frontend.
+ */
+export function listarTransacciones(categoryId?: number): Promise<Transaccion[]> {
+  const ruta =
+    categoryId === undefined ? '/api/transactions' : `/api/transactions?categoryId=${categoryId}`
+  return pedir<Transaccion[]>(ruta)
 }
 
 export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> {
@@ -131,10 +137,98 @@ export function crearTransaccion(datos: NuevaTransaccion): Promise<Transaccion> 
   })
 }
 
-// El endpoint todavia no existe: pedido en la issue #8. Hasta que entre,
-// la pantalla muestra la lista y el saldo, pero no deja agregar.
+/** Lo que devuelve GET /api/ai/recommendations (issue #16): tres consejos y quien los genero. */
+export type RespuestaRecomendaciones = {
+  recommendations: string[]
+  source: string
+}
+
+export function obtenerRecomendaciones(): Promise<RespuestaRecomendaciones> {
+  return pedir<RespuestaRecomendaciones>('/api/ai/recommendations')
+}
+
+/** Las predefinidas mas las propias del usuario (issue #8). */
 export function listarCategorias(): Promise<Categoria[]> {
   return pedir<Categoria[]>('/api/categories')
+}
+
+/** POST /api/categories. Si el nombre ya existe, la API responde 409 con su mensaje. */
+export function crearCategoria(name: string): Promise<Categoria> {
+  return pedir<Categoria>('/api/categories', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
+}
+
+/** Un presupuesto del mes con lo gastado, tal como lo devuelve GET /api/budgets (issue #13, PR #59). */
+export type EstadoPresupuesto = {
+  id: number
+  categoryId: number
+  categoryName: string
+  period: string
+  monthlyLimit: number
+  spent: number
+  /** La API decide si se paso del limite. El frontend no compara montos: solo lee esta marca. */
+  exceeded: boolean
+}
+
+/** Los presupuestos del mes en curso. El mes lo decide la API. */
+export function listarPresupuestos(): Promise<EstadoPresupuesto[]> {
+  return pedir<EstadoPresupuesto[]>('/api/budgets')
+}
+
+/**
+ * PUT y no POST: si la categoria ya tenia presupuesto este mes, la API
+ * reemplaza el limite en vez de crear otro.
+ */
+export function definirPresupuesto(
+  categoryId: number,
+  monthlyLimit: number,
+): Promise<EstadoPresupuesto> {
+  return pedir<EstadoPresupuesto>('/api/budgets', {
+    method: 'PUT',
+    body: JSON.stringify({ categoryId, monthlyLimit }),
+  })
+}
+
+/** Una meta de ahorro, tal como la devuelve /api/goals (issue #12, PR #60). */
+export type Meta = {
+  id: number
+  name: string
+  targetAmount: number
+  savedAmount: number
+  targetDate: string
+  /** Lo calcula la API: entero de 0 a 100, redondeado hacia abajo. */
+  progressPercent: number
+}
+
+/** Lo que espera POST /api/goals. La fecha limite no puede estar en el pasado. */
+export type NuevaMeta = {
+  name: string
+  targetAmount: number
+  targetDate: string
+}
+
+export function listarMetas(): Promise<Meta[]> {
+  return pedir<Meta[]>('/api/goals')
+}
+
+export function crearMeta(datos: NuevaMeta): Promise<Meta> {
+  return pedir<Meta>('/api/goals', {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  })
+}
+
+/**
+ * La API reemplaza lo ahorrado, no le suma: se manda el total que lleva
+ * ahorrado hasta ahora, y responde la meta con el progreso ya recalculado.
+ */
+export function actualizarAhorro(id: number, savedAmount: number): Promise<Meta> {
+  return pedir<Meta>(`/api/goals/${id}/savings`, {
+    method: 'PUT',
+    body: JSON.stringify({ savedAmount }),
+  })
 }
 
 /** Lo que devuelve GET /api/balance (issue #15): los totales calculados por el servidor. */
