@@ -33,6 +33,10 @@ services:
       # Recomendaciones con IA (D-12). Sin clave, el endpoint usa las reglas (D-03).
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      # Sin esto el contenedor corre en UTC y, despues de las 6 p.m. de Costa
+      # Rica, la API ya esta en el dia siguiente: "hoy" y "el mes en curso"
+      # salen corridos (#70).
+      TZ: America/Costa_Rica
     ports: ["8080:8080"]
     depends_on:
       db: {condition: service_healthy}
