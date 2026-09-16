@@ -338,3 +338,47 @@ propias los escribe el usuario y viajan dentro del prompt. Alguien podría escri
 instrucción como nombre de categoría, pero solo afectaría a sus propios consejos. El
 prompt aclara que esos nombres son datos y no instrucciones, y la respuesta se valida:
 tienen que volver exactamente tres consejos en el JSON esperado.
+
+## D-13 · La API corre en `America/Costa_Rica`, no en UTC
+
+**Fecha:** 2026-09-15 · **Issue:** #70
+
+**Contexto.** La imagen de la API es `eclipse-temurin:21-jre-alpine`, que sin
+configuración corre en **UTC**. El backend calcula "hoy" y "el mes en curso" con el
+reloj del contenedor: `LocalDate.now()` en `RecommendationService`, `YearMonth.now()`
+en `BudgetService` y la validación `@FutureOrPresent` de la fecha límite de las metas.
+Costa Rica es UTC−6, así que **entre las 6 p.m. y la medianoche el contenedor ya está
+en el día siguiente**. Lo detectó @NieblaVidente al crear una meta a las 20:42 y
+recibir un 400.
+
+**Medido, no supuesto.** Con el reloj del host en `Sep 15 19:46`:
+
+| | `TimeZone.getDefault()` | `LocalDate.now()` |
+|---|---|---|
+| Sin `TZ` (como estaba) | `GMT` | **2026-09-16** ← un día adelante |
+| Con `TZ=America/Costa_Rica` | `America/Costa_Rica` | 2026-09-15 |
+
+**Qué se consideró.**
+
+| Opción | Por qué no |
+|---|---|
+| Un bean `Clock` inyectado en los servicios | Es más testeable, pero **no arregla `@FutureOrPresent`**: esa anotación usa el reloj por defecto de la JVM y no recibe el bean. El síntoma que reportó Pablo seguiría igual |
+| Guardar las fechas con hora y zona (`ZonedDateTime`) | Cambia el modelo y la base por un problema que es de configuración, no de datos: las fechas ya son `LocalDate` y no necesitan hora |
+| **La variable `TZ` en el contenedor** | ← elegida |
+
+**Decisión.** `TZ: America/Costa_Rica` en el servicio `api` del compose y en el
+ConfigMap de Kubernetes, que el Deployment ya carga con `envFrom`. Al fijar la zona
+por defecto de la JVM, quedan correctos los tres usos a la vez, **incluida la
+validación**, sin tocar el código. La imagen ya trae `tzdata`, así que no hace falta
+modificar el `Dockerfile`.
+
+**Lo que esto no resuelve.** Las pruebas siguen corriendo en la zona del runner de CI,
+que es UTC. Hoy no las afecta, y se revisó una por una: `BudgetService` y
+`RecommendationService` tienen una versión de cada método que **recibe la fecha por
+parámetro**, y es esa la que se prueba. `TransactionServiceTest` sí llama a
+`LocalDate.now()`, pero solo para construir el movimiento: **ninguna aserción mira la
+fecha**, así que el resultado no cambia con la zona. Si alguna vez se prueba
+`@FutureOrPresent`, habrá que fijar la zona también en el `pom.xml`.
+
+**Supuesto.** El equipo y la demo están en Costa Rica. Con usuarios en otra zona esto
+habría que guardarlo por usuario, y ahí sí cambiaría el modelo.
