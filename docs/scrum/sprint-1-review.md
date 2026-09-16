@@ -24,8 +24,8 @@ frontend en `localhost:5173`, API en `localhost:8080`, Postgres con las tablas c
 
 ## Velocidad real
 
-**20 puntos, 7 de 7 issues cerradas**, dentro del plazo (el sprint vencía el sábado 13
-y se cerró el jueves 11).
+**20 puntos, 7 de 7 issues cerradas**, dentro del plazo (el sprint vencía el domingo 13
+y se cerró el viernes 11).
 
 Con una advertencia para no engañarnos al planificar: **una parte importante de esos
 puntos fue andamiaje** — estructura de carpetas, Docker, CI. Ese trabajo se hace una
