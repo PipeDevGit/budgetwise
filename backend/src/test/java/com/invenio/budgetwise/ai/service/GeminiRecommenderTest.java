@@ -109,6 +109,41 @@ class GeminiRecommenderTest {
     }
 
     @Test
+    void laMetaLlegaConLoQueHayQueApartarPorMesYaCalculado() {
+        // Caso visto en vivo el 2026-09-16: con solo objetivo, ahorrado y fecha, el modelo
+        // aconsejo "Aparta 300 000,00 este mes", que es el objetivo total y no lo de un mes.
+        ResumenFinanciero.Meta viaje = new ResumenFinanciero.Meta(
+                "Viaje", new BigDecimal("300000"), new BigDecimal("120000"), LocalDate.of(2026, 12, 20));
+
+        String meta = GeminiRecommender.describirMeta(viaje, LocalDate.of(2026, 9, 16))
+                .replace(' ', ' ').replace(' ', ' ');
+
+        // Faltan 180 000 en cuatro meses (septiembre a diciembre): 45 000 por mes.
+        assertThat(meta)
+                .contains("falta 180 000,00")
+                .contains("hay que apartar 45 000,00 por mes");
+    }
+
+    @Test
+    void unaMetaAlcanzadaOVencidaNoLlevaMontoPorMes() {
+        LocalDate hoy = LocalDate.of(2026, 9, 16);
+        ResumenFinanciero.Meta alcanzada = new ResumenFinanciero.Meta(
+                "Moto", new BigDecimal("100000"), new BigDecimal("100000"), LocalDate.of(2026, 12, 1));
+        ResumenFinanciero.Meta vencida = new ResumenFinanciero.Meta(
+                "Curso", new BigDecimal("100000"), new BigDecimal("20000"), LocalDate.of(2026, 8, 1));
+
+        assertThat(GeminiRecommender.describirMeta(alcanzada, hoy))
+                .endsWith("ya alcanzada").doesNotContain("por mes");
+        assertThat(GeminiRecommender.describirMeta(vencida, hoy))
+                .endsWith("fecha limite vencida").doesNotContain("por mes");
+    }
+
+    @Test
+    void elPromptPideNoHacerCuentas() {
+        assertThat(sinClave.construirPrompt(RESUMEN_VACIO)).contains("No hagas cuentas");
+    }
+
+    @Test
     void laPeticionPideLaRespuestaEnJson() {
         ResumenFinanciero vacio = new ResumenFinanciero(
                 LocalDate.of(2026, 9, 13), BigDecimal.ZERO, BigDecimal.ZERO, Map.of(), Map.of(), List.of());

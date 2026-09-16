@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LoginForm } from './auth/LoginForm'
 import { RegisterForm } from './auth/RegisterForm'
-import { borrarToken, guardarToken, leerToken } from './auth/session'
+import { alVencerLaSesion, borrarToken, guardarToken, leerToken } from './auth/session'
+import { MENSAJE_SESION_VENCIDA } from './api/client'
 import { MetasDeAhorro } from './metas/MetasDeAhorro'
 import { PanelControl } from './panel/PanelControl'
 import { PantallaTransacciones } from './transacciones/PantallaTransacciones'
@@ -20,10 +21,24 @@ function App() {
   const [token, setToken] = useState<string | null>(() => leerToken())
   const [vista, setVista] = useState<Vista>('login')
   const [seccion, setSeccion] = useState<Seccion>('transacciones')
+  const [aviso, setAviso] = useState<string | null>(null)
+
+  // Si la API rechaza el token, client.ts ya lo borro: solo falta volver al login.
+  useEffect(
+    () =>
+      alVencerLaSesion(() => {
+        setToken(null)
+        setVista('login')
+        setSeccion('transacciones')
+        setAviso(MENSAJE_SESION_VENCIDA)
+      }),
+    [],
+  )
 
   function abrirSesion(nuevoToken: string) {
     guardarToken(nuevoToken)
     setToken(nuevoToken)
+    setAviso(null)
   }
 
   function cerrarSesion() {
@@ -59,7 +74,14 @@ function App() {
     )
   } else if (vista === 'login') {
     contenido = (
-      <LoginForm onSesionIniciada={abrirSesion} onIrARegistro={() => setVista('registro')} />
+      <>
+        {aviso && (
+          <p role="status" className="aviso">
+            {aviso}
+          </p>
+        )}
+        <LoginForm onSesionIniciada={abrirSesion} onIrARegistro={() => setVista('registro')} />
+      </>
     )
   } else {
     contenido = (

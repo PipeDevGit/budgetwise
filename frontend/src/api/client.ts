@@ -1,4 +1,4 @@
-import { leerToken } from '../auth/session'
+import { avisarSesionVencida, leerToken } from '../auth/session'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
 
@@ -50,6 +50,8 @@ export type RespuestaAuth = {
   token: string
 }
 
+export const MENSAJE_SESION_VENCIDA = 'Tu sesion vencio. Inicia sesion de nuevo.'
+
 /**
  * Unico punto por donde sale una peticion al backend. Centraliza tres cosas
  * que si no se repetirian en cada pantalla: la URL base, el header
@@ -74,6 +76,13 @@ async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
     // fetch solo lanza si no se pudo llegar al servidor. Un 4xx o 5xx no
     // lanza: eso se revisa abajo con respuesta.ok.
     throw new Error('No se pudo conectar con la API. Verifica que el backend este corriendo.')
+  }
+
+  // Con token, un 401 o 403 significa que la API ya no lo acepta. Sin token es
+  // otra cosa: por ejemplo, un login con la contrasena equivocada.
+  if (token && (respuesta.status === 401 || respuesta.status === 403)) {
+    avisarSesionVencida()
+    throw new Error(MENSAJE_SESION_VENCIDA)
   }
 
   if (!respuesta.ok) {
