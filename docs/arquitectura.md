@@ -26,7 +26,7 @@ com.invenio.budgetwise
 ├── transaction/   ingresos y gastos
 ├── category/      categorías y clasificación
 ├── budget/        metas de ahorro y alertas por sobrepaso
-├── ai/            recomendaciones (API + respaldo por reglas)
+├── ai/            recomendaciones (Gemini + respaldo por reglas, D-12)
 └── shared/        configuración, seguridad, manejo de errores
 ```
 
@@ -50,6 +50,10 @@ deja traza de los errores 500.
 
 ## Despliegue
 
-`infra/docker-compose.yml` levanta los tres servicios (`db`, `api`, `web`).
-`infra/k8s/` contiene los manifiestos de Deployment y Service de la API como exploración
-de Kubernetes; no se despliega en un clúster real.
+`infra/docker-compose.yml` levanta los tres servicios (`db`, `api`, `web`), y es lo que se
+usa en el día a día y en la demo.
+
+`infra/k8s/` es la exploración de Kubernetes (D-08): la API como `Deployment` de 2 réplicas
+con sondas de salud y su `Service`, Postgres como `StatefulSet`, y la configuración en un
+`ConfigMap`. **Se corrió en un clúster local con kind el 2026-09-16**: la evidencia está en
+`docs/evidencias/kubernetes-kind.txt` y lo que se aprendió, en `infra/k8s/README.md`.
