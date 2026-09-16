@@ -4,6 +4,8 @@ import com.invenio.budgetwise.ai.domain.ResumenFinanciero;
 import com.invenio.budgetwise.ai.dto.RecommendationResponse;
 import com.invenio.budgetwise.auth.domain.User;
 import com.invenio.budgetwise.auth.repository.UserRepository;
+import com.invenio.budgetwise.budget.domain.Budget;
+import com.invenio.budgetwise.budget.repository.BudgetRepository;
 import com.invenio.budgetwise.budget.repository.SavingsGoalRepository;
 import com.invenio.budgetwise.transaction.domain.Transaction;
 import com.invenio.budgetwise.transaction.domain.TransactionType;
@@ -39,6 +41,7 @@ public class RecommendationService {
 
     private final TransactionRepository transactionRepository;
     private final SavingsGoalRepository savingsGoalRepository;
+    private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
     private final RuleBasedRecommender ruleBasedRecommender;
     private final GeminiRecommender geminiRecommender;
@@ -46,11 +49,13 @@ public class RecommendationService {
     public RecommendationService(
             TransactionRepository transactionRepository,
             SavingsGoalRepository savingsGoalRepository,
+            BudgetRepository budgetRepository,
             UserRepository userRepository,
             RuleBasedRecommender ruleBasedRecommender,
             GeminiRecommender geminiRecommender) {
         this.transactionRepository = transactionRepository;
         this.savingsGoalRepository = savingsGoalRepository;
+        this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
         this.ruleBasedRecommender = ruleBasedRecommender;
         this.geminiRecommender = geminiRecommender;
@@ -87,13 +92,20 @@ public class RecommendationService {
                 .map(meta -> new ResumenFinanciero.Meta(
                         meta.getName(), meta.getTargetAmount(), meta.getSavedAmount(), meta.getTargetDate()))
                 .toList();
+        // Mismo filtro por usuario y por mes que GET /api/budgets.
+        Map<String, BigDecimal> presupuestos = budgetRepository.findByUserIdAndPeriod(userId, mes.toString()).stream()
+                .collect(Collectors.toMap(
+                        presupuesto -> presupuesto.getCategory().getName(),
+                        Budget::getMonthlyLimit,
+                        (primero, segundo) -> primero));
         return new ResumenFinanciero(
                 hoy,
                 sumar(delMes, TransactionType.INGRESO),
                 sumar(delMes, TransactionType.GASTO),
                 gastoPorCategoria(delMes),
                 gastoPorCategoria(delMesAnterior),
-                metas);
+                metas,
+                presupuestos);
     }
 
     /** Filtra por usuario, igual que todas las consultas de transacciones: nunca datos de otra persona. */

@@ -122,6 +122,9 @@ public class GeminiRecommender {
                 - Tener una o dos oraciones, en espanol, tratando al usuario de vos.
                 - Mencionar un monto solo si ayuda a la accion, copiandolo exactamente como aparece abajo.
                   No hagas cuentas: para una meta, lo que hay que apartar por mes ya viene calculado.
+                - No proponer un tope para una categoria que ya tiene presupuesto: el usuario ya lo definio.
+                  Si esta excedido, aconseja como compensarlo; si no, cuidar lo que le queda disponible.
+                - Nunca proponer como tope lo que ya se gasto en una categoria.
 
                 No repitas el resumen: el usuario ya ve sus ingresos y gastos en la aplicacion.
                 Usa solo los datos del resumen; no inventes montos, categorias ni tendencias.
@@ -134,6 +137,7 @@ public class GeminiRecommender {
                 Gastos por categoria este mes: %s
                 Gastos por categoria el mes pasado: %s
                 Metas de ahorro: %s
+                Presupuestos del mes: %s
                 """.formatted(
                 YearMonth.from(resumen.hoy()),
                 // Los montos van ya formateados como en la aplicacion: pedirle al modelo que
@@ -142,7 +146,28 @@ public class GeminiRecommender {
                 RuleBasedRecommender.monto(resumen.gastosDelMes()),
                 porCategoria(resumen.gastoPorCategoriaMesActual()),
                 porCategoria(resumen.gastoPorCategoriaMesAnterior()),
-                metas);
+                metas,
+                describirPresupuestos(resumen));
+    }
+
+    /** Limite, gastado y cuanto se paso o cuanto queda, ya calculados para que el modelo los copie. */
+    static String describirPresupuestos(ResumenFinanciero resumen) {
+        if (resumen.presupuestosDelMes().isEmpty()) {
+            return "ninguno";
+        }
+        return resumen.presupuestosDelMes().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(presupuesto -> {
+                    BigDecimal limite = presupuesto.getValue();
+                    BigDecimal gastado = resumen.gastoPorCategoriaMesActual()
+                            .getOrDefault(presupuesto.getKey(), BigDecimal.ZERO);
+                    String estado = gastado.compareTo(limite) > 0
+                            ? "excedido por " + RuleBasedRecommender.monto(gastado.subtract(limite))
+                            : "disponible " + RuleBasedRecommender.monto(limite.subtract(gastado));
+                    return presupuesto.getKey() + ": limite " + RuleBasedRecommender.monto(limite)
+                            + ", gastado " + RuleBasedRecommender.monto(gastado) + ", " + estado;
+                })
+                .collect(Collectors.joining("; "));
     }
 
     static String describirMeta(ResumenFinanciero.Meta meta, LocalDate hoy) {
